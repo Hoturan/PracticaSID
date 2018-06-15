@@ -93,9 +93,8 @@ public class AgenteRio extends Agent
     {
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
-        sd.setType("RioAgent"); 
+        sd.setType("AgenteRio"); 
         sd.setName(getName());
-        sd.setOwnership("TILAB");
         dfd.setName(getAID());
         dfd.addServices(sd);
 
