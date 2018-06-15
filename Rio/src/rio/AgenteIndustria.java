@@ -107,7 +107,7 @@ public class AgenteIndustria extends Agent{
             }
             
             aux = searchDF("AgenteRio");
-            if (aux != null){
+            if (aux.length == 1){
                 if (debug){
                     System.out.println("Rio added with AID: " + aux[0]);
                 }
@@ -115,8 +115,19 @@ public class AgenteIndustria extends Agent{
                 AIDrio = aux[0];
             }
             else {
-                myLogger.log(Logger.SEVERE, "No AgenteRio Found! - Cannot continue");
-                doDelete();
+                if (aux == null){
+                    myLogger.log(Logger.SEVERE, "No AgenteRio Found! - Cannot continue");
+                    doDelete();
+                }
+                else {
+                    myLogger.log(Logger.SEVERE, "There should NOT be 2 AgenteRio! - Taking First as valid");
+                    if (debug){
+                        System.out.println("Rio added with AID: " + aux[0]);
+                    }
+                    minARio = true;
+                    AIDrio = aux[0];
+                }
+                  
             }
             
             /*template.addServices(templateSd);
