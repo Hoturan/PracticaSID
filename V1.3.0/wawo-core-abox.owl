@@ -1,0 +1,550 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://kemlg.upc.edu/wawo-core-abox#"
+     xml:base="http://kemlg.upc.edu/wawo-core-abox"
+     xmlns:ns="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#"
+     xmlns:gml="http://www.opengis.net/gml/"
+     xmlns:georss="http://www.georss.org/georss/"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:ns1="http://creativecommons.org/ns#"
+     xmlns:swrla="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#"
+     xmlns:wawo-upper-tbox="http://kemlg.upc.edu/wawo-upper-tbox#"
+     xmlns:wawo-core-tbox="http://kemlg.upc.edu/wawo-core-tbox#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:uo="http://purl.obolibrary.org/obo/uo#"
+     xmlns:obo="http://purl.obolibrary.org/obo/"
+     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <owl:Ontology rdf:about="http://kemlg.upc.edu/wawo-core-abox">
+        <owl:versionIRI rdf:resource="http://kemlg.upc.edu/wawo-core-abox/1.3.0"/>
+        <owl:imports rdf:resource="http://kemlg.upc.edu/wawo-core-tbox/1.3.0"/>
+        <terms:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LEQUIA</terms:creator>
+        <terms:title rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WaWO: WasteWater Ontology - Core component; abox</terms:title>
+        <terms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-08-31T00:00:00</terms:created>
+        <terms:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">KEMLg</terms:creator>
+        <terms:hasVersion rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1.3.0</terms:hasVersion>
+        <terms:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Set of assertions used in WaWo-Core.</terms:description>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-upper-tbox#hasAValue -->
+
+    <owl:AnnotationProperty rdf:about="http://kemlg.upc.edu/wawo-upper-tbox#hasAValue"/>
+    
+
+
+    <!-- http://purl.org/dc/terms/description -->
+
+    <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/description"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#AirportLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#AirportLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#LandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#AirportRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#AirportRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#AirportRunoffCoefficient">
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.95</wawo-upper-tbox:hasDataValue>
+        <wawo-upper-tbox:hasAValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.95</wawo-upper-tbox:hasAValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.875</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#BaredPackedSoilLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#BaredPackedSoilLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#AgriculturalLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#BaredpackedSoilRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#BaredpackedSoilRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#BaredpackedSoilRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.375</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#BrickStreetsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#BrickStreetsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#BrickStreetsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#BrickStreetsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#BrickStreetsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.775</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#CemeteriesLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#CemeteriesLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#GreenAreaLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#CemeteriesRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#CemeteriesRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#CemeteriesRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.175</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.875</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#AgriculturalLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.32</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#DowntownAreasLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#DowntownAreasLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#UrbanLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#DowntownAreasRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#DowntownAreasRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#DowntownAreasRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.825</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.8</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#Example-IndustrialSurface -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#Example-IndustrialSurface"/>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#HighwayLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#HighwayLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#HighwayRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#HighwayRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#HighwayRunoffCoefficient">
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.95</wawo-upper-tbox:hasDataValue>
+        <wawo-upper-tbox:hasAValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.95</wawo-upper-tbox:hasAValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#IndustrialLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#IndustrialLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#IndustrialRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#IndustrialRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.7</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#IndustrialSurfaceExample -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialSurfaceExample">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#Surface"/>
+        <georss:where rdf:resource="http://kemlg.upc.edu/wawo-core-abox#IndustrialSurfaceExamplePolygonExample"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#IndustrialSurfaceExamplePolygonExample -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialSurfaceExamplePolygonExample">
+        <rdf:type rdf:resource="http://www.opengis.net/gml/Polygon"/>
+        <gml:posList rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 1 2 2 1 1</gml:posList>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#InhabitantsDimensionlessUnit -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#InhabitantsDimensionlessUnit"/>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#LawnsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#LawnsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#GreenAreaLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#LawnsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#LawnsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#LawnsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.2</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#UrbanLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.6</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ParkLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ParkLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#GreenAreaLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#ParkRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ParkRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ParkRunoffCoefficient">
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.175</wawo-upper-tbox:hasDataValue>
+        <wawo-upper-tbox:hasAValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.175</wawo-upper-tbox:hasAValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#PastureLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#PastureLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#AgriculturalLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#PastureRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#PastureRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#PastureRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.23</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#PlaygroundsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#PlaygroundsLandUse">
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#PlaygroundsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#PlaygroundsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#PlaygroundsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.285</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#DrivesAndWalksLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.3</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ResidentialLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ResidentialLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#UrbanLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#ResidentialRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#ResidentialRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#ResidentialRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.35</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#LandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.2</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#WoodlandsLandUse -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#WoodlandsLandUse">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#GreenAreaLandUse"/>
+        <wawo-core-tbox:hasRunoffCoefficient rdf:resource="http://kemlg.upc.edu/wawo-core-abox#WoodlandsRunoffCoefficient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://kemlg.upc.edu/wawo-core-abox#WoodlandsRunoffCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://kemlg.upc.edu/wawo-core-abox#WoodlandsRunoffCoefficient">
+        <rdf:type rdf:resource="http://kemlg.upc.edu/wawo-core-tbox#RunoffCoefficient"/>
+        <wawo-upper-tbox:hasUnit rdf:resource="http://kemlg.upc.edu/wawo-core-abox#RunoffDimensionlessUnit"/>
+        <wawo-upper-tbox:hasDataValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.15</wawo-upper-tbox:hasDataValue>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#AirportLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#BaredPackedSoilLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#BrickStreetsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#CemeteriesLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#DowntownAreasLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#HighwayLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#LawnsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ParkLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#PastureLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#PlaygroundsLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ResidentialLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaLandUse"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#WoodlandsLandUse"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#AirportRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#AsphalticStreetsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#BaredpackedSoilRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#BrickStreetsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#CemeteriesRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ConcreteStreetsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#CultivatedRowsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#DowntownAreasRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#DrivesAndWalksRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#HighwayRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#IndustrialRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#LawnsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#NeighbourhoodAreasRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ParkRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#PastureRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#PlaygroundsRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#RailroadYardAreasRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#ResidentialRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#UnimprovedAreaRunoffCoefficient"/>
+            <rdf:Description rdf:about="http://kemlg.upc.edu/wawo-core-abox#WoodlandsRunoffCoefficient"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.5.20160517-0735) https://github.com/owlcs/owlapi -->
+

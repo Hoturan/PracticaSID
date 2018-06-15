@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.kemlg.upc.edu/riverbasim/abox/besos"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.kemlg.upc.edu/riverbasim/abox/besos">
+    <Prefix name="" IRI="http://www.kemlg.upc.edu/riverbasim/abox/besos#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="terms" IRI="http://purl.org/dc/terms/"/>
+    <Import>http://kemlg.upc.edu/wawo-core-abox/1.2.0</Import>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="terms:creator"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">KEMLg - Luis Oliva</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="terms:title"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-03T00:00:00</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="terms:title"/>
+        <Literal xml:lang="en" datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">WaWO ABox - Besos river basin</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="terms:description"/>
+        <Literal xml:lang="en" datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Assertion box (ABox) for the Besos river basin.</Literal>
+    </Annotation>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="terms:created"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="terms:creator"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-3,4"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="terms:title"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-RS-2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-RS-1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#RiverEnd"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besòs"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-RS-4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-RS-3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#RiverStart"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-1,2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Besos-2,3"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="terms:description"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#Basin"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#RiverSection"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#RiverSection"/>
+        <NamedIndividual IRI="#Besos-RS-1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#RiverSection"/>
+        <NamedIndividual IRI="#Besos-RS-2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#RiverSection"/>
+        <NamedIndividual IRI="#Besos-RS-3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#RiverSection"/>
+        <NamedIndividual IRI="#Besos-RS-4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://kemlg.upc.edu/wawo-core#Basin"/>
+        <NamedIndividual IRI="#Besòs"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#Interface"/>
+        <NamedIndividual IRI="#RiverEnd"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#Interface"/>
+        <NamedIndividual IRI="#RiverStart"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#Interface"/>
+        <NamedIndividual IRI="#Besos-1,2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#Interface"/>
+        <NamedIndividual IRI="#Besos-2,3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#Interface"/>
+        <NamedIndividual IRI="#Besos-3,4"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-1"/>
+        <NamedIndividual IRI="#RiverEnd"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-1"/>
+        <NamedIndividual IRI="#Besos-1,2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-2"/>
+        <NamedIndividual IRI="#Besos-1,2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-2"/>
+        <NamedIndividual IRI="#Besos-2,3"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-3"/>
+        <NamedIndividual IRI="#Besos-2,3"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-3"/>
+        <NamedIndividual IRI="#Besos-3,4"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-4"/>
+        <NamedIndividual IRI="#RiverStart"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://purl.org/geovocamp/ontology/SurfaceWater_Dry#end"/>
+        <NamedIndividual IRI="#Besos-RS-4"/>
+        <NamedIndividual IRI="#Besos-3,4"/>
+    </ObjectPropertyAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#RiverEnd</IRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">This represent the end of the river; the water flows to the sea.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#RiverStart</IRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">This represents where the river is bornt. It can be a natural well, a mountain...</Literal>
+    </AnnotationAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.2.5.20160517-0735) https://github.com/owlcs/owlapi -->
+
