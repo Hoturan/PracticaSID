@@ -1,5 +1,6 @@
 package rio;
 
+import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
@@ -8,7 +9,10 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.proto.AchieveREResponder;
 import jade.util.Logger;
  
  
@@ -56,36 +60,20 @@ public class AgenteRio extends Agent
             super(a);
         }
  
+        @Override
         public void action() {
-            ACLMessage  msg = myAgent.receive();
-            if(msg != null){
-                ACLMessage reply = msg.createReply();
- 
-                if(msg.getPerformative()== ACLMessage.REQUEST){
-                    String content = msg.getContent();
-                    
-                    if ((content != null) && (content.indexOf("ping") != -1)){
-                        myLogger.log(Logger.INFO, "Agent "+getLocalName()+" - Received PING Request from "+msg.getSender().getLocalName());
-                        reply.setPerformative(ACLMessage.INFORM);
-                        reply.setContent("pong");
-                    }
-                    else{
-                        myLogger.log(Logger.INFO, "Agent "+getLocalName()+" - Unexpected request ["+content+"] received from "+msg.getSender().getLocalName());
-                        reply.setPerformative(ACLMessage.REFUSE);
-                        reply.setContent("( UnexpectedContent ("+content+"))");
-                    }
- 
-                }
-                else {
-                    myLogger.log(Logger.INFO, "Agent "+getLocalName()+" - Unexpected message ["+ACLMessage.getPerformative(msg.getPerformative())+"] received from "+msg.getSender().getLocalName());
-                    reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-                    reply.setContent("( (Unexpected-act "+ACLMessage.getPerformative(msg.getPerformative())+") )");   
-                }
-                send(reply);
-            }
-            else {
-                block();
-            }
+            MessageTemplate  mt=  AchieveREResponder.createMessageTemplate(FIPANames.InteractionProtocol.FIPA_REQUEST);  
+            myAgent.addBehaviour( new  AchieveREResponder(myAgent,  mt)  {    
+                @Override
+                protected  ACLMessage  prepareResultNotification(ACLMessage  request,  ACLMessage  resp)  {   
+                    System.out.println("Responder  has  received  the  following  message:" +request);    
+                    ACLMessage  informDone  =  request.createReply();  
+                    informDone.setPerformative(ACLMessage.INFORM);    
+                    informDone.setContent("inform  done");
+                    // River mass -10 or something like that
+                    return  informDone;  
+                }    
+            });
         }
     } 
     

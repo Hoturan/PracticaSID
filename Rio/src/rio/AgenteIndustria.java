@@ -8,15 +8,29 @@ package rio;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.proto.AchieveREInitiator;
+import jade.proto.AchieveREResponder;
+import jade.proto.ContractNetInitiator;
 import jade.util.Logger;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  *
@@ -27,15 +41,103 @@ public class AgenteIndustria extends Agent{
 
     private boolean debug = true;
 
+    //leaters of clean water 
+    private int lWater = 10;
+    //leaters of filthy water 
+    private int lWaste = 0;
+    
+    //Money made, trying to maximize it
+    private int earnings = 0;
+    
+    private int leatersUsedPerProcess = 2;
+    private int earningsPerProcess = 500;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
     
+    private int nResponders;
+    
     AID AIDrio;
     ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
     ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
+    
+    private class IndustriaTickerBehaviour extends TickerBehaviour    {
+        String message;
+        int count_chocula;
 
+        boolean extractingWater = false;
+        
+        public IndustriaTickerBehaviour(Agent a, long period) {
+            super(a, period);
+        }
+
+ 
+        public void onStart()
+        {
+            this.message = "Agent " + myAgent +" with RioTickerBehaviour in action!!" + count_chocula;
+            count_chocula = 0;
+        }
+ 
+        public int onEnd()
+        {
+            System.out.println("I have done " + count_chocula + " iterations");
+            return count_chocula;
+        }
+        
+        public void onTick(){
+            
+            processaAgua();
+        }
+        
+        private void extractCleanWater(){
+            if (debug) System.out.println("No clean water left in Industria " + this.getAgent().getName());
+            if (!extractingWater){
+                if (debug) System.out.println("Going to extract more");
+                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                request.addReceiver(AIDrio);
+                extractingWater = true;
+                myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
+                    @Override
+                    protected  void  handleInform(ACLMessage  inform)  {   
+                        System.out.println("Protocol  finished. Received  the  following  message:  "+inform); 
+                        lWater += 10;
+                        extractingWater = false;
+                    }
+
+                    @Override
+                    protected void handleRefuse(ACLMessage reject){
+                        System.out.println("Protocol  finished. No more water left in this section of the river");
+                        extractingWater = false;
+                    }
+                });
+            }
+                      
+        }
+        
+        public void processaAgua() {
+            if (lWater > 2){
+                lWater -= 2;
+                lWaste += 2;
+                earnings += earningsPerProcess;
+                
+                if(debug){
+                    System.out.println("Industria Process Done: ");
+                    System.out.println("    Clean water Tank at: " + lWater + "L");
+                    System.out.println("    Waste Tank at: " + lWaste + "L");
+                    System.out.println("    Earnings at: " + earnings + " euros");
+                }
+                                     
+            }
+            else{
+                extractCleanWater();
+            }
+        
+        }      
+ 
+    }
+    
      public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
     {
         public SearchDepuradoraAndRioOneShotBehaviour()
@@ -130,41 +232,107 @@ public class AgenteIndustria extends Agent{
                   
             }
             
-            /*template.addServices(templateSd);
-            SearchConstraints sc = new SearchConstraints();
-            DFAgentDescription[] results = null;
-            
-            try {
-                results = DFService.search(myAgent, template, sc);
-            } catch (FIPAException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            System.out.println("Search returns: " + results.length + " elements" );
-            if (results.length > 0) {
-                for (int i = 0; i < results.length; ++i){
-                    DFAgentDescription dfd = results[0];
-                    AID provider = dfd.getName();
-                    if (provider.getLocalName().equals("AgenteRio")){
-                        System.out.println("HERE1: " + provider.getName());
-                        minARio = true;
-                        AIDrio = provider;
-                    }
-                    else if (provider.getLocalName().equals("AgenteDepuradora")){
-                        System.out.println("HERE2");
-                        minADepuradora = true;
-                        AIDsDepuradoras.add(provider);
-                    }
-                    else if (!provider.equals(myAgent.getAID()) && provider.getLocalName().equals("AgenteIndustria")){
-                        AIDsIndustrias.add(provider);
-                    }
-                }
-            }*/
-
             if (!minADepuradora || !minARio) System.out.println(message);
+            
+            /*if (AIDsDepuradoras.size() > 0) {
+                nResponders = AIDsDepuradoras.size();
+                System.out.println("Trying to delegate the action Perform AIA exam to "+nResponders+" responders. Press any key to go on...");
+                        BufferedReader br = new BufferedReader(new InputStreamReader(System.in) );
+                    try {
+                        String sample = br.readLine();
+                    } catch (IOException ex) {
+                        Logger.getLogger(AgenteIndustria.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                // Create the CFP message
+                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
+                for (int i = 0; i < AIDsDepuradoras.size(); ++i) {
+                    msg.addReceiver(new AID((String) AIDsDepuradoras.get(i).getName(), AID.ISLOCALNAME)); //Not sure
+                }
+                    msg.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+                    // We want to receive a reply in 10 secs
+                    msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
+                    msg.setContent("Permisso para verter agua");
+                                ContractNetInitiatorBehaviour cib = new ContractNetInitiatorBehaviour(myAgent,msg);
+                    addBehaviour(cib);
+            }
+            else {
+                System.out.println("No responder specified.");
+            }*/
         }
  
     }
+     
+     private class ContractNetInitiatorBehaviour extends ContractNetInitiator
+         {
+             public ContractNetInitiatorBehaviour(Agent a, ACLMessage mt)
+            {
+                super(a,mt);
+            }
+ 
+             protected void handlePropose(ACLMessage propose, Vector v)
+             {
+                System.out.println("Agent '"+propose.getSender().getName()+"' proposed '"+propose.getContent() + "'");
+             }
+ 
+            protected void handleRefuse(ACLMessage refuse)
+            {
+                    System.out.println("Agent '"+refuse.getSender().getName()+"' refused");
+            }
+ 
+            protected void handleFailure(ACLMessage failure)
+            {
+                    if (failure.getSender().equals(myAgent.getAMS())) {
+                            // FAILURE notification from the JADE runtime: the receiver
+                            // does not exist
+                            System.out.println("Responder does not exist");
+                    }
+                    else {
+                            System.out.println("Agent '"+failure.getSender().getName()+"' failed");
+                    }
+                    // Immediate failure --> we will not receive a response from this agent
+                    nResponders--;
+            }
+ 
+            protected void handleAllResponses(Vector responses, Vector acceptances)
+            {
+                    if (responses.size() < nResponders) {
+                            // Some responder didn't reply within the specified timeout
+                            System.out.println("Timeout expired: missing "+(nResponders - responses.size())+" responses");
+                    }
+                    // Evaluate proposals.
+                    int bestProposal = -1;
+                    AID bestProposer = null;
+                    ACLMessage accept = null;
+                    Enumeration e = responses.elements();
+                    while (e.hasMoreElements()) {
+                            ACLMessage msg = (ACLMessage) e.nextElement();
+                            if (msg.getPerformative() == ACLMessage.PROPOSE) {
+                                    ACLMessage reply = msg.createReply();
+                                    reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+                                    acceptances.addElement(reply);
+                                    int proposal = Integer.parseInt(msg.getContent());
+                                    if (proposal > bestProposal) {
+                                            bestProposal = proposal;
+                                            bestProposer = msg.getSender();
+                                            accept = reply;
+                                    }
+                            }
+                    }
+                    // Accept the proposal of the best proposer
+                    if (accept != null) {
+                            System.out.println("Accepting proposal '"+bestProposal+"' from responder '"+bestProposer.getName() + "'");
+                            accept.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+                    }
+            }
+ 
+            protected void handleInform(ACLMessage inform)
+            {
+                    System.out.println("Agent '"+inform.getSender().getName()+"' successfully performed the requested action");
+            }
+ 
+              
+         } 
     
     protected void setup()
     {
@@ -184,6 +352,10 @@ public class AgenteIndustria extends Agent{
         
         SearchDepuradoraAndRioOneShotBehaviour b = new SearchDepuradoraAndRioOneShotBehaviour();
         this.addBehaviour(b); 
+        
+        IndustriaTickerBehaviour It = new IndustriaTickerBehaviour(this, 1000);
+        this.addBehaviour(It);
+        
     }
     
 }
