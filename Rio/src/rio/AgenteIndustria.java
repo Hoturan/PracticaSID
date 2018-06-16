@@ -41,15 +41,15 @@ public class AgenteIndustria extends Agent{
 
     private boolean debug = true;
 
-    //leaters of clean water 
+    //liters of clean water 
     private int lWater = 10;
-    //leaters of filthy water 
+    //liters of filthy water 
     private int lWaste = 0;
     
     //Money made, trying to maximize it
     private int earnings = 0;
     
-    private int leatersUsedPerProcess = 2;
+    private int litersUsedPerProcess = 2;
     private int earningsPerProcess = 500;
     
     String message="Have not found one of the two basic Agents";
@@ -138,8 +138,8 @@ public class AgenteIndustria extends Agent{
  
     }
     
-     public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
-    {
+    public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
+        {
         public SearchDepuradoraAndRioOneShotBehaviour()
         {
              
@@ -263,7 +263,7 @@ public class AgenteIndustria extends Agent{
  
     }
      
-     private class ContractNetInitiatorBehaviour extends ContractNetInitiator
+    private class ContractNetInitiatorBehaviour extends ContractNetInitiator
          {
              public ContractNetInitiatorBehaviour(Agent a, ACLMessage mt)
             {
