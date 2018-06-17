@@ -58,9 +58,9 @@ public class AgenteIndustria extends Agent{
     
     private int nResponders;
     
-    AID AIDrio;
-    ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
-    ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
+    private AID AIDrio;
+    private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
+    private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
     
     private class IndustriaTickerBehaviour extends TickerBehaviour    {
         String message;
@@ -197,7 +197,7 @@ public class AgenteIndustria extends Agent{
             if (aux != null){
                 for (int i = 0; i < aux.length; ++i){
                     if (debug){
-                        System.out.println("Depuradora added with AID: " + aux[i]);
+                        System.out.println(myAgent.getAID().getName() + " is adding Depuradora with AID: " + aux[i]);
                     }
                     minADepuradora = true;
                     AIDsDepuradoras.add(aux[i]);
@@ -211,7 +211,7 @@ public class AgenteIndustria extends Agent{
             aux = searchDF("AgenteRio");
             if (aux.length == 1){
                 if (debug){
-                    System.out.println("Rio added with AID: " + aux[0]);
+                    System.out.println(myAgent.getAID().getName() + " is adding Rio with AID: " + aux[0]);
                 }
                 minARio = true;
                 AIDrio = aux[0];
@@ -233,32 +233,6 @@ public class AgenteIndustria extends Agent{
             }
             
             if (!minADepuradora || !minARio) System.out.println(message);
-            
-            /*if (AIDsDepuradoras.size() > 0) {
-                nResponders = AIDsDepuradoras.size();
-                System.out.println("Trying to delegate the action Perform AIA exam to "+nResponders+" responders. Press any key to go on...");
-                        BufferedReader br = new BufferedReader(new InputStreamReader(System.in) );
-                    try {
-                        String sample = br.readLine();
-                    } catch (IOException ex) {
-                        Logger.getLogger(AgenteIndustria.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                // Create the CFP message
-                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-                for (int i = 0; i < AIDsDepuradoras.size(); ++i) {
-                    msg.addReceiver(new AID((String) AIDsDepuradoras.get(i).getName(), AID.ISLOCALNAME)); //Not sure
-                }
-                    msg.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-                    // We want to receive a reply in 10 secs
-                    msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
-                    msg.setContent("Permisso para verter agua");
-                                ContractNetInitiatorBehaviour cib = new ContractNetInitiatorBehaviour(myAgent,msg);
-                    addBehaviour(cib);
-            }
-            else {
-                System.out.println("No responder specified.");
-            }*/
         }
  
     }
