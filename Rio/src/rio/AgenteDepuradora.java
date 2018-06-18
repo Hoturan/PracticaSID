@@ -63,7 +63,7 @@ public class AgenteDepuradora extends Agent {
                 System.out.println("Agent '"+getLocalName()+"' receives a CFP from Agent '"+cfp.getSender().getName()+"' to perform action '"+cfp.getContent() + "'");
                 if (performs.equalsIgnoreCase("YES")) {
                     // We provide a proposal
-                    System.out.println("Agent '"+getLocalName()+"' proposes  '"+evaluation + "'");
+                    System.out.println("Agent '"+getLocalName()+"' proposes  '" + evaluation + "'");
                     ACLMessage propose = cfp.createReply();
                     propose.setPerformative(ACLMessage.PROPOSE);
                     propose.setContent(String.valueOf(evaluation));
