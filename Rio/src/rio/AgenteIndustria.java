@@ -12,6 +12,9 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.FailureException;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
+import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
@@ -21,6 +24,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 import jade.proto.ContractNetInitiator;
+import jade.proto.ContractNetResponder;
 import jade.util.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,10 +46,12 @@ public class AgenteIndustria extends Agent{
     private boolean debug = true;
 
     //liters of clean water 
-    private int lWater = 10;
+    private int lWater = 100000;
     //liters of filthy water 
     private int lWaste = 0;
     
+    private int tankCapacity = 250000; //Liters
+
     //Money made, trying to maximize it
     private int earnings = 0;
     
@@ -55,8 +61,9 @@ public class AgenteIndustria extends Agent{
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
-    
-    private int nResponders;
+        
+    protected String performs;
+    protected int evaluation;
     
     private AID AIDrio;
     private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
@@ -65,7 +72,8 @@ public class AgenteIndustria extends Agent{
     private class IndustriaTickerBehaviour extends TickerBehaviour    {
         String message;
         int count_chocula;
-
+        
+        boolean pouringWater = false;
         boolean extractingWater = false;
         
         public IndustriaTickerBehaviour(Agent a, long period) {
@@ -75,7 +83,7 @@ public class AgenteIndustria extends Agent{
  
         public void onStart()
         {
-            this.message = "Agent " + myAgent +" with RioTickerBehaviour in action!!" + count_chocula;
+            this.message = "Agent " + myAgent +" with IndustriaTickerBehaviour in action!!" + count_chocula;
             count_chocula = 0;
         }
  
@@ -102,7 +110,7 @@ public class AgenteIndustria extends Agent{
                     @Override
                     protected  void  handleInform(ACLMessage  inform)  {   
                         System.out.println("Protocol  finished. Received  the  following  message:  "+inform); 
-                        lWater += 10;
+                        lWater = 100000;
                         extractingWater = false;
                     }
 
@@ -117,9 +125,9 @@ public class AgenteIndustria extends Agent{
         }
         
         public void processaAgua() {
-            if (lWater > 2){
-                lWater -= 2;
-                lWaste += 2;
+            if (lWater > 25000 && lWaste < (tankCapacity-25000)){
+                lWater -= 25000;
+                lWaste += 25000;
                 earnings += earningsPerProcess;
                 
                 if(debug){
@@ -130,8 +138,42 @@ public class AgenteIndustria extends Agent{
                 }
                                      
             }
+            else if (lWaste > (tankCapacity-25000)){
+                System.out.println("Stopping production, no more capacity for Waste");
+            }
             else{
                 extractCleanWater();
+            }
+            
+            if (lWaste/tankCapacity > 0.75){
+                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");
+                if (!pouringWater){
+                   for (int i = 0; i < AIDsDepuradoras.size() && lWaste > tankCapacity - 25000; ++i){
+                        ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                        request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                        request.setContent(String.valueOf(lWaste));
+                        request.addReceiver(AIDsDepuradoras.get(i));
+                        pouringWater = true;
+                        final String depuradoraName =  AIDsDepuradoras.get(i).getLocalName();
+                        myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
+                            @Override
+                            protected  void  handleInform(ACLMessage  inform)  {   
+                                System.out.println("Protocol  finished. Depuradora" + depuradoraName +  " accepted the following waste liters:  "+ inform); 
+                                int l = Integer.valueOf(inform.getContent());
+                                lWaste -= l;
+                                pouringWater = false; 
+                            }
+
+                            @Override
+                            protected void handleRefuse(ACLMessage reject){
+                                System.out.println("Depuradora " + depuradoraName + " rejects because" + reject.getContent());
+                                extractingWater = false;
+                            }
+                        }); 
+                } 
+                }
+                
+                
             }
         
         }      
@@ -236,77 +278,7 @@ public class AgenteIndustria extends Agent{
         }
  
     }
-     
-    private class ContractNetInitiatorBehaviour extends ContractNetInitiator
-         {
-             public ContractNetInitiatorBehaviour(Agent a, ACLMessage mt)
-            {
-                super(a,mt);
-            }
- 
-             protected void handlePropose(ACLMessage propose, Vector v)
-             {
-                System.out.println("Agent '"+propose.getSender().getName()+"' proposed '"+propose.getContent() + "'");
-             }
- 
-            protected void handleRefuse(ACLMessage refuse)
-            {
-                    System.out.println("Agent '"+refuse.getSender().getName()+"' refused");
-            }
- 
-            protected void handleFailure(ACLMessage failure)
-            {
-                    if (failure.getSender().equals(myAgent.getAMS())) {
-                            // FAILURE notification from the JADE runtime: the receiver
-                            // does not exist
-                            System.out.println("Responder does not exist");
-                    }
-                    else {
-                            System.out.println("Agent '"+failure.getSender().getName()+"' failed");
-                    }
-                    // Immediate failure --> we will not receive a response from this agent
-                    nResponders--;
-            }
- 
-            protected void handleAllResponses(Vector responses, Vector acceptances)
-            {
-                    if (responses.size() < nResponders) {
-                            // Some responder didn't reply within the specified timeout
-                            System.out.println("Timeout expired: missing "+(nResponders - responses.size())+" responses");
-                    }
-                    // Evaluate proposals.
-                    int bestProposal = -1;
-                    AID bestProposer = null;
-                    ACLMessage accept = null;
-                    Enumeration e = responses.elements();
-                    while (e.hasMoreElements()) {
-                            ACLMessage msg = (ACLMessage) e.nextElement();
-                            if (msg.getPerformative() == ACLMessage.PROPOSE) {
-                                    ACLMessage reply = msg.createReply();
-                                    reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
-                                    acceptances.addElement(reply);
-                                    int proposal = Integer.parseInt(msg.getContent());
-                                    if (proposal > bestProposal) {
-                                            bestProposal = proposal;
-                                            bestProposer = msg.getSender();
-                                            accept = reply;
-                                    }
-                            }
-                    }
-                    // Accept the proposal of the best proposer
-                    if (accept != null) {
-                            System.out.println("Accepting proposal '"+bestProposal+"' from responder '"+bestProposer.getName() + "'");
-                            accept.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-                    }
-            }
- 
-            protected void handleInform(ACLMessage inform)
-            {
-                    System.out.println("Agent '"+inform.getSender().getName()+"' successfully performed the requested action");
-            }
- 
-              
-         } 
+    
     
     protected void setup()
     {
@@ -324,12 +296,67 @@ public class AgenteIndustria extends Agent{
             doDelete();
         }
         
-        SearchDepuradoraAndRioOneShotBehaviour b = new SearchDepuradoraAndRioOneShotBehaviour();
-        this.addBehaviour(b); 
+        IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, 5000);
+        this.addBehaviour(Ib);
         
-        IndustriaTickerBehaviour It = new IndustriaTickerBehaviour(this, 1000);
-        this.addBehaviour(It);
+        SearchDepuradoraAndRioOneShotBehaviour sD = new SearchDepuradoraAndRioOneShotBehaviour();
+        this.addBehaviour(sD);
+                
+        System.out.println("Agent "+getLocalName()+" waiting for CFP...");
+        MessageTemplate template = MessageTemplate.and(
+                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
+                        MessageTemplate.MatchPerformative(ACLMessage.CFP) );
+
+        this.addBehaviour(new ContractNetResponder(this, template) {
+                @Override
+                protected ACLMessage handleCfp(ACLMessage cfp) throws NotUnderstoodException, RefuseException {
+                        System.out.println("Agent "+getLocalName()+": CFP received from "+cfp.getSender().getName()+". Action is "+cfp.getContent());
+                        int proposal = evaluateAction();
+                        if (proposal > 2) {
+                                // We provide a proposal
+                                System.out.println("Agent "+getLocalName()+": Proposing "+proposal);
+                                ACLMessage propose = cfp.createReply();
+                                propose.setPerformative(ACLMessage.PROPOSE);
+                                propose.setContent(String.valueOf(proposal));
+                                return propose;
+                        }
+                        else {
+                                // We refuse to provide a proposal
+                                System.out.println("Agent "+getLocalName()+": Refuse");
+                                throw new RefuseException("evaluation-failed");
+                        }
+                }
+
+                @Override
+                protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose,ACLMessage accept) throws FailureException {
+                        System.out.println("Agent "+getLocalName()+": Proposal accepted");
+                        if (performAction()) {
+                                System.out.println("Agent "+getLocalName()+": Pour Waste action successfully performed");
+                                ACLMessage inform = accept.createReply();
+                                inform.setPerformative(ACLMessage.INFORM);
+                                return inform;
+                        }
+                        else {
+                                System.out.println("Agent "+getLocalName()+": Pour Waste action execution failed");
+                                throw new FailureException("unexpected-error");
+                        }	
+                }
+
+                protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose, ACLMessage reject) {
+                        System.out.println("Agent "+getLocalName()+": Proposal rejected");
+                }
+        } );
+	}
+
+	private int evaluateAction() {
+            return lWaste;
+	}
+
+	private boolean performAction() {
+		// Verter agua al acantarillado
+                lWaste = 0;
+                return true;
+	}
         
-    }
-    
-}
+        
+ }

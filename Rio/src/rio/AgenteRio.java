@@ -95,7 +95,9 @@ public class AgenteRio extends Agent
             doDelete();
         }
         
-        RioTickerBehaviour b = new RioTickerBehaviour(this, 3000);
+        RioTickerBehaviour b = new RioTickerBehaviour(this, 10000);
         this.addBehaviour(b);
+        
+        
     }
 }
