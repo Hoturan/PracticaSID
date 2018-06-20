@@ -115,18 +115,31 @@ public class AgenteIndustria extends Agent{
                 @Override
                 public void action() {
                     ACLMessage reply = receive();
-                    System.out.println("Industria espera contestacion de rio");
+                    //System.out.println("Industria espera contestacion de rio");
                     if(reply != null){
                         switch(reply.getPerformative()){
                             case ACLMessage.INFORM:
                                 String content = reply.getContent();
+                                String[] words = content.split("\\s+");
                                 System.out.println("AgenteIndustria has received the following message: " + content);
-                                int litrosExtraidos = Integer.parseInt(content.substring(content.length()-1));
-                                lWater += litrosExtraidos * 1000000; // * 1000.000
-                                System.out.println("Industria tiene " + lWater + " litros de agua");
+                                int litros = Integer.parseInt(words[words.length-1]);
+                                switch(reply.getSender().getLocalName()){
+                                    case "AgenteRio":
+                                        lWater += litros;
+                                        System.out.println("Industria tiene " + lWater + " litros de agua");
+                                        break;
+                                    case "AgenteDepuradora":
+                                        lWaste -= litros;
+                                        System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
+                                        break;
+                                    default:
+                                        System.out.println("Oops, algo ha ido mal!");
+                                        break;
+                                }
+
                                 break;
                             case ACLMessage.REJECT_PROPOSAL:
-                                System.out.println("AgenteIndustria aun no puede obtener agua del rio");
+                                System.out.println("AgenteIndustria no puede realizar la accion deseada");
                                 break;
                             default:
                                 System.out.println("MALFORMED MESSAGE");
@@ -146,6 +159,7 @@ public class AgenteIndustria extends Agent{
               
         
         public void procesaAgua() {
+           
             if (lWater >= 250000 && lWaste <= (tankCapacity-250000)){
                 lWater -= 250000;
                 lWaste += 250000;
@@ -170,36 +184,21 @@ public class AgenteIndustria extends Agent{
             
             if (wasteWaterLoad > 0.75){
                 if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");
-                if (!pouringWater){
-                   for (int i = 0; i < AIDsDepuradoras.size() && lWaste > tankCapacity - 250000; ++i){
-                        ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                        request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                        request.setContent(String.valueOf(lWaste));
-                        request.addReceiver(AIDsDepuradoras.get(i));
-                        pouringWater = true;
-                        final String depuradoraName =  AIDsDepuradoras.get(i).getLocalName();
-                        myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
-                            @Override
-                            protected  void  handleInform(ACLMessage  inform)  {   
-                                System.out.println("Protocol  finished. Depuradora" + depuradoraName +  " accepted the following waste liters:  "+ inform); 
-                                int l = Integer.valueOf(inform.getContent());
-                                lWaste -= l;
-                                pouringWater = false; 
-                            }
 
-                            @Override
-                            protected void handleRefuse(ACLMessage reject){
-                                System.out.println("Depuradora " + depuradoraName + " rejects because" + reject.getContent());
-                            }
-                        }); 
-                } 
+                for (int i = 0; i < AIDsDepuradoras.size() && lWaste > tankCapacity / 2; ++i){
+                    
+                    ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                    request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                    request.setContent("VERTER AGUA: " + String.valueOf(lWaste));
+                    request.addReceiver(AIDsDepuradoras.get(i));
+                    send(request);
+
+                    final String depuradoraName =  AIDsDepuradoras.get(i).getLocalName();
+                    //System.out.println("Industria espera contestacion de: " + depuradoraName);
+                    // LO RECIBE EN EL SIMPLEBEHAVIOUR DE LA FUNCION EXTRACT WATER                   
                 }
-                
-                
             }
-        
         }      
- 
     }
     
     public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour

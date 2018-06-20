@@ -52,6 +52,7 @@ public class AgenteRio extends Agent
         }
         
         public void onTick(){
+            
             rioBesos.avanzarCurso();
         }
     
@@ -73,6 +74,7 @@ public class AgenteRio extends Agent
                     switch(msg.getPerformative()){
                         case ACLMessage.REQUEST:
                             String content = msg.getContent();
+                            String[] words = content.split("\\s+");
                             System.out.println("AgenteRio has received the following message: " + content);
                             AID sender = msg.getSender();
                             System.out.println("The message was sent by: " + sender.getLocalName());
@@ -82,10 +84,9 @@ public class AgenteRio extends Agent
                                 if(rioIniciado){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
-                                    int msgLength = content.length();
-                                    int posicionIndustria = Integer.parseInt(content.substring(msgLength-1));
-                                    int litrosExtraidos = rioBesos.extraerAgua(posicionIndustria, 1);
-                                    reply.setContent("Se han podido extraer (Millones de litros): " + String.valueOf(litrosExtraidos));
+                                    int posicionIndustria = Integer.parseInt(words[words.length-1]);
+                                    int litrosExtraidos = rioBesos.extraerAgua(posicionIndustria, 1000000);
+                                    reply.setContent("Se han podido extraer: " + String.valueOf(litrosExtraidos));
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
                                     send(reply);
                                 }
@@ -93,6 +94,27 @@ public class AgenteRio extends Agent
                                     System.out.println("EL RIO AUN NO ESTA INICIADO!");
                                     ACLMessage reply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
                                     reply.setContent("No se ha podido extraer agua del rio");
+                                    reply.addReceiver(sender);
+                                    reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
+                                    send(reply);
+                                }
+                            }
+                            else if(sender.getLocalName().equals("AgenteDepuradora")){
+                                System.out.println("Rio is sending reply to AgenteDepuradora");
+                                if(rioIniciado){
+                                    ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+                                    reply.addReceiver(sender);
+                                    int posicionDepuradora = Integer.parseInt(words[words.length-2]);
+                                    int litrosDescargados = Integer.parseInt(words[words.length-1]);
+                                    rioBesos.descargarAgua(posicionDepuradora, litrosDescargados);
+                                    reply.setContent("Se han podido descargar : " + String.valueOf(litrosDescargados));
+                                    reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                                    send(reply);
+                                }
+                                else {
+                                    System.out.println("EL RIO AUN NO ESTA INICIADO!");
+                                    ACLMessage reply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+                                    reply.setContent("No se ha podido descargar agua al rio");
                                     reply.addReceiver(sender);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
                                     send(reply);

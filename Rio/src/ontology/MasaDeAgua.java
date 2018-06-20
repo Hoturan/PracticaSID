@@ -69,7 +69,7 @@ public class MasaDeAgua{
     public MasaDeAgua(){
             solidosEnSuspension = demandaQuimicaDeOxigeno = demandaBiologicaDeOxigeno = 
                     totalSulfatos = totalNitratos = 0.0f;
-            volumen = 1;
+            volumen = 1000000;
             posicion = 0;
     }
 
