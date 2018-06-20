@@ -26,6 +26,19 @@ public class Rio{
     // avanza todas las masas de agua del rio 1 posicion
     public void avanzarCurso(){
             System.out.println("RIO AVANZA CURSO");
+            // buscamos si hay un hueco
+            int found = -1;
+            for(int i = 0; i<flow.length && found == -1; ++i){
+                if(flow[i].getVolumen() == 0) found = i;
+            }
+            if(found != -1){
+                for(int i = found; i>0; --i){
+                    flow[i] = flow[i-1];
+                    flow[i].aumentarPosicion();
+                }
+            }
+            
+            
            for(int i = flow.length-1; i>0; --i){
                 MasaDeAgua mtemp = flow[i-1];
                 mtemp.aumentarPosicion();
