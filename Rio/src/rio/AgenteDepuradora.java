@@ -446,6 +446,7 @@ public class AgenteDepuradora extends Agent {
         
             AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
             this.addBehaviour(RioMessageBehaviour);
+            
             DFService.register(this,dfd);
         } 
         catch (FIPAException e) {

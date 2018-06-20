@@ -58,7 +58,7 @@ public class AgenteIndustria extends Agent{
     private int earningsPerProcess = 500;
     private int tramo = 0;
     private int litersPerProcess = 0;
-    private int secondsPerTick = 0;
+    private int secondsPerTick = 5;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
@@ -70,7 +70,47 @@ public class AgenteIndustria extends Agent{
     private AID AIDrio;
     private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
+           
     
+    private class MessageRecieverBehaviour extends SimpleBehaviour{
+        private boolean finish = false;
+        @Override
+         public void action() {
+                ACLMessage reply = receive();
+                System.out.println("Industria espera contestacion de rio");
+                if(reply != null){
+                   System.out.println("HERE");
+
+                    switch(reply.getPerformative()){
+                        case ACLMessage.INFORM:
+                            String content = reply.getContent();
+                            System.out.println("AgenteIndustria has received the following message: " + content);
+  
+                            int litrosExtraidos = Integer.parseInt(content.substring(content.length()-1));
+                            lWater += litrosExtraidos * 1000000; // * 1000.000
+                            System.out.println("Industria tiene " + lWater + " litros de agua");
+                            finish = true;
+                            break;
+                        case ACLMessage.REJECT_PROPOSAL:
+                            System.out.println("AgenteIndustria aun no puede obtener agua del rio");
+                            finish = true;
+                            break;
+                        default:
+                            System.out.println("MALFORMED MESSAGE");
+                            finish = true;
+                            break;
+                    }
+                }
+                else block();                  
+            }        
+
+        @Override
+        public boolean done() {
+            return finish;
+        }
+
+                
+    }
     
         
     private class IndustriaTickerBehaviour extends TickerBehaviour {
@@ -84,14 +124,12 @@ public class AgenteIndustria extends Agent{
             tankCapacity = Integer.valueOf(args[0].toString());       
             tramo = Integer.valueOf(args[1].toString());             
             litersPerProcess = Integer.valueOf(args[2].toString());               
-            secondsPerTick = Integer.valueOf(args[3].toString());
 
             if (debug) {
                 System.out.println("Parametros de " + myAgent.getAID().getLocalName());
                 System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
                 System.out.println("    Tramo de la Indunstria ---> " + tramo);
                 System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
-                System.out.println("    Segundos por tick ---> " + secondsPerTick);
                 System.out.println("-------------------------------------------------------");
             }
         }
@@ -109,7 +147,6 @@ public class AgenteIndustria extends Agent{
         
         public void onTick(){      
             procesaAgua();
-            block();
         }
         
         
@@ -312,7 +349,6 @@ public class AgenteIndustria extends Agent{
             }
             
             if (!minADepuradora || !minARio) System.out.println(message);
-            block();
         }
     }
     
@@ -327,12 +363,15 @@ public class AgenteIndustria extends Agent{
         dfd.setName(getAID());
         dfd.addServices(sd);
         
-        try {
-            IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, 5000);
-            this.addBehaviour(Ib);
-        
+        try {     
             SearchDepuradoraAndRioOneShotBehaviour sD = new SearchDepuradoraAndRioOneShotBehaviour();
-            this.addBehaviour(sD);
+            this.addBehaviour(sD);        
+            
+            MessageRecieverBehaviour mR = new MessageRecieverBehaviour();
+            this.addBehaviour(mR); 
+            
+            IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, secondsPerTick*1000);
+            this.addBehaviour(Ib);
             
             DFService.register(this,dfd);
         } catch (FIPAException e) {
