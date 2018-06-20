@@ -49,14 +49,16 @@ public class AgenteIndustria extends Agent{
     //liters of clean water 
     private int lWater = 0;
     //liters of filthy water 
-    private int lWaste = 0;
+    private int lWaste = 100000;
     
     private int tankCapacity = 2500000; // 2.5M Liters
 
     //Money made, trying to maximize it
-    private int earnings = 0;
-    
+    private int earnings = 0;  
     private int earningsPerProcess = 500;
+    private int tramo = 0;
+    private int litersPerProcess = 0;
+    private int secondsPerTick = 0;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
@@ -69,6 +71,7 @@ public class AgenteIndustria extends Agent{
     private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
     
+    
         
     private class IndustriaTickerBehaviour extends TickerBehaviour {
         String message;
@@ -76,15 +79,26 @@ public class AgenteIndustria extends Agent{
         
         boolean pouringWater = false;
         
-        public IndustriaTickerBehaviour(Agent a, long period) {
-            super(a, period);
+        public void onStart(){
+            Object[] args = getArguments();
+            tankCapacity = Integer.valueOf(args[0].toString());       
+            tramo = Integer.valueOf(args[1].toString());             
+            litersPerProcess = Integer.valueOf(args[2].toString());               
+            secondsPerTick = Integer.valueOf(args[3].toString());
+
+            if (debug) {
+                System.out.println("Parametros de " + myAgent.getAID().getLocalName());
+                System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
+                System.out.println("    Tramo de la Indunstria ---> " + tramo);
+                System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
+                System.out.println("    Segundos por tick ---> " + secondsPerTick);
+                System.out.println("-------------------------------------------------------");
+            }
         }
 
- 
-        public void onStart()
-        {
-            this.message = "Agent " + myAgent +" with IndustriaTickerBehaviour in action!!" + count_chocula;
-            count_chocula = 0;
+        
+        public IndustriaTickerBehaviour(Agent a, long period) {
+            super(a, period);
         }
  
         public int onEnd()
@@ -95,7 +109,10 @@ public class AgenteIndustria extends Agent{
         
         public void onTick(){      
             procesaAgua();
+            block();
         }
+        
+        
         
         private void extractCleanWater(){
             if (debug) {
@@ -140,8 +157,7 @@ public class AgenteIndustria extends Agent{
                 public boolean done() {
                     return finished;
                 }        
-            });
-                
+            });     
         }        
               
         
@@ -297,7 +313,6 @@ public class AgenteIndustria extends Agent{
             if (!minADepuradora || !minARio) System.out.println(message);
             block();
         }
- 
     }
     
     

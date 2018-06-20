@@ -64,6 +64,8 @@ public class AgenteDepuradora extends Agent {
 
     private int lWasteContainer = 0;
     
+   
+    
     private class DepuradoraTickerBehaviour extends TickerBehaviour    {
         String message;
         int count_chocula;
@@ -92,6 +94,7 @@ public class AgenteDepuradora extends Agent {
         public void onTick(){
             
             depurarAgua();
+            block();
         }
         
         private void pourCleanWater(){
@@ -208,6 +211,7 @@ public class AgenteDepuradora extends Agent {
                     nResponders--;
             }
  
+             @Override
             protected void handleAllResponses(Vector responses, Vector acceptances)
             {
                     if (responses.size() < nResponders) {
@@ -356,9 +360,9 @@ public class AgenteDepuradora extends Agent {
                 myLogger.log(Logger.SEVERE, "No AgenteRio Found! - Cannot continue");
                 doDelete();
             }
-          
-          block();
+            block();   
         }
+        
  
     }
     

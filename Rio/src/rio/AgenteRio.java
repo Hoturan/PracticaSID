@@ -53,6 +53,7 @@ public class AgenteRio extends Agent
         
         public void onTick(){
             avanzaCursoAgua();
+            block();
         }
         
         public void avanzaCursoAgua() {
@@ -135,12 +136,13 @@ public class AgenteRio extends Agent
                             break;
                     }
                 }
+                else block();
                 
             }
             catch (Exception e){
                 e.printStackTrace();
             }
-            block();
+            
         }
 
         @Override
