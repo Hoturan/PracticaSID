@@ -73,40 +73,47 @@ public class AgenteIndustria extends Agent{
            
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
-        private boolean finish = false;
+        private boolean finished = false;
         @Override
-         public void action() {
-                ACLMessage reply = receive();
-                System.out.println("Industria espera contestacion de rio");
-                if(reply != null){
-                   System.out.println("HERE");
+        public void action() {
+            ACLMessage reply = receive();
+            //System.out.println("Industria espera contestacion de rio");
+            if(reply != null){
+                switch(reply.getPerformative()){
+                    case ACLMessage.INFORM:
+                        String content = reply.getContent();
+                        String[] words = content.split("\\s+");
+                        System.out.println("AgenteIndustria has received the following message: " + content);
+                        int litros = Integer.parseInt(words[words.length-1]);
+                        switch(reply.getSender().getLocalName()){
+                            case "AgenteRio":
+                                lWater += litros;
+                                System.out.println("Industria tiene " + lWater + " litros de agua");
+                                break;
+                            case "AgenteDepuradora":
+                                lWaste -= litros;
+                                System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
+                                break;
+                            default:
+                                System.out.println("Oops, algo ha ido mal!");
+                                break;
+                        }
 
-                    switch(reply.getPerformative()){
-                        case ACLMessage.INFORM:
-                            String content = reply.getContent();
-                            System.out.println("AgenteIndustria has received the following message: " + content);
-  
-                            int litrosExtraidos = Integer.parseInt(content.substring(content.length()-1));
-                            lWater += litrosExtraidos * 1000000; // * 1000.000
-                            System.out.println("Industria tiene " + lWater + " litros de agua");
-                            finish = true;
-                            break;
-                        case ACLMessage.REJECT_PROPOSAL:
-                            System.out.println("AgenteIndustria aun no puede obtener agua del rio");
-                            finish = true;
-                            break;
-                        default:
-                            System.out.println("MALFORMED MESSAGE");
-                            finish = true;
-                            break;
-                    }
+                        break;
+                    case ACLMessage.REJECT_PROPOSAL:
+                        System.out.println("AgenteIndustria no puede realizar la accion deseada");
+                        break;
+                    default:
+                        System.out.println("MALFORMED MESSAGE");
+                        break;
                 }
-                else block();                  
-            }        
+            }
+            block();                  
+        }     
 
         @Override
         public boolean done() {
-            return finish;
+            return finished;
         }
 
                 
@@ -160,54 +167,8 @@ public class AgenteIndustria extends Agent{
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
             request.setContent("EXTRAER AGUA " + String.valueOf(position));
-            send(request);
-
-            myAgent.addBehaviour(new SimpleBehaviour(){
-
-                private boolean finished = false;
-
-                @Override
-                public void action() {
-                    ACLMessage reply = receive();
-                    //System.out.println("Industria espera contestacion de rio");
-                    if(reply != null){
-                        switch(reply.getPerformative()){
-                            case ACLMessage.INFORM:
-                                String content = reply.getContent();
-                                String[] words = content.split("\\s+");
-                                System.out.println("AgenteIndustria has received the following message: " + content);
-                                int litros = Integer.parseInt(words[words.length-1]);
-                                switch(reply.getSender().getLocalName()){
-                                    case "AgenteRio":
-                                        lWater += litros;
-                                        System.out.println("Industria tiene " + lWater + " litros de agua");
-                                        break;
-                                    case "AgenteDepuradora":
-                                        lWaste -= litros;
-                                        System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
-                                        break;
-                                    default:
-                                        System.out.println("Oops, algo ha ido mal!");
-                                        break;
-                                }
-
-                                break;
-                            case ACLMessage.REJECT_PROPOSAL:
-                                System.out.println("AgenteIndustria no puede realizar la accion deseada");
-                                break;
-                            default:
-                                System.out.println("MALFORMED MESSAGE");
-                                break;
-                        }
-                    }
-                    block();                  
-                }
-
-                @Override
-                public boolean done() {
-                    return finished;
-                }        
-            });     
+            send(request);      
+       
         }        
               
         
