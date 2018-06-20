@@ -1,7 +1,5 @@
 package ontology;
 
-
-
 public class Rio{
 	
     private final MasaDeAgua[] flow;
@@ -18,7 +16,7 @@ public class Rio{
     private void muestraRio(){
         System.out.println("ESTADO DEL RIO:");
         for(int i = 0; i<flow.length; ++i){
-            System.out.print(String.valueOf(flow[i].getVolumen()) + " - ");
+            System.out.print(String.valueOf(flow[i].getVolumen()) + " >> ");
         }
         System.out.println("MAR \n");
     }

@@ -10,6 +10,13 @@ public class MasaDeAgua{
     private float totalSulfatos;				// mg/l
     private int posicion;
 
+    public MasaDeAgua(){
+            solidosEnSuspension = demandaQuimicaDeOxigeno = demandaBiologicaDeOxigeno = 
+                    totalSulfatos = totalNitratos = 0.0f;
+            volumen = 1000000;
+            posicion = 0;
+    }
+    
     public int getVolumen() {
         return volumen;
     }
@@ -64,13 +71,6 @@ public class MasaDeAgua{
 
     public void setPosicion(int posicion) {
         this.posicion = posicion;
-    }
-
-    public MasaDeAgua(){
-            solidosEnSuspension = demandaQuimicaDeOxigeno = demandaBiologicaDeOxigeno = 
-                    totalSulfatos = totalNitratos = 0.0f;
-            volumen = 1000000;
-            posicion = 0;
     }
 
     public void contaminaAgua(){

@@ -35,7 +35,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
-
+import ontology.Industria;
+import ontology.MessageManager;
 /**
  *
  * @author David
@@ -44,21 +45,11 @@ public class AgenteIndustria extends Agent{
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
     private boolean debug = true;
-    private int position = 2;  // TRAMO DEL RIO EN EL QUE ESTA SITUADA LA INDUSTRIA
-
-    //liters of clean water 
-    private int lWater = 0;
-    //liters of filthy water 
-    private int lWaste = 100000;
-    
-    private int tankCapacity = 2500000; // 2.5M Liters
-
-    //Money made, trying to maximize it
-    private int earnings = 0;  
-    private int earningsPerProcess = 500;
-    private int tramo = 0;
-    private int litersPerProcess = 0;
+ 
     private int secondsPerTick = 5;
+    private Industria[] industrias;
+    private int numeroIndustrias;
+    private MessageManager msgManager;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
@@ -69,8 +60,7 @@ public class AgenteIndustria extends Agent{
     
     private AID AIDrio;
     private AID AIDDepuradora;
-    private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
-           
+    private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();    
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
         private boolean finish = false;
@@ -84,15 +74,16 @@ public class AgenteIndustria extends Agent{
                             String content = reply.getContent();
                             String[] words = content.split("\\s+");
                             System.out.println("AgenteIndustria has received the following message: " + content);
-                            int litros = Integer.parseInt(words[words.length-1]);
+                            int litros = msgManager.getLitros(words);
+                            int indiceIndustria = msgManager.getIndice(words);
                             switch(reply.getSender().getLocalName()){
                                 case "AgenteRio":
-                                    lWater += litros;
-                                    System.out.println("Industria tiene " + lWater + " litros de agua");
+                                    industrias[indiceIndustria].setlWater(industrias[indiceIndustria].getlWater() + litros);
+                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWater() + " litros de agua");
                                     break;
                                 case "AgenteDepuradora":
-                                    lWaste -= litros;
-                                    System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
+                                    industrias[indiceIndustria].setlWaste(industrias[indiceIndustria].getlWaste() - litros);
+                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWaste() + " litros de agua sucia");
                                     break;
                                 default:
                                     System.out.println("Oops, algo ha ido mal!");
@@ -118,7 +109,6 @@ public class AgenteIndustria extends Agent{
 
                 
     }
-    
         
     private class IndustriaTickerBehaviour extends TickerBehaviour {
         String message;
@@ -127,18 +117,33 @@ public class AgenteIndustria extends Agent{
         boolean pouringWater = false;
         
         public void onStart(){
+            msgManager = new MessageManager();
             Object[] args = getArguments();
-            tankCapacity = Integer.valueOf(args[0].toString());       
-            tramo = Integer.valueOf(args[1].toString());             
-            litersPerProcess = Integer.valueOf(args[2].toString());               
-
+            numeroIndustrias = Integer.valueOf(args[0].toString());
+            int tankCapacity = Integer.valueOf(args[1].toString());       
+            int posicion = Integer.valueOf(args[2].toString());             
+            int litersPerProcess = Integer.valueOf(args[3].toString());   
+            
             if (debug) {
                 System.out.println("Parametros de " + myAgent.getAID().getLocalName());
+                System.out.println("    Numero de industrias ---> " + numeroIndustrias);
                 System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
-                System.out.println("    Tramo de la Indunstria ---> " + tramo);
+                System.out.println("    Tramo de la Indunstria ---> " + posicion);
                 System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
                 System.out.println("-------------------------------------------------------");
             }
+            
+            industrias = new Industria[numeroIndustrias];
+            
+            for(int i = 0; i<numeroIndustrias; ++i){
+                industrias[i] = new Industria();
+                industrias[i].setTankCapacity(tankCapacity);
+                industrias[i].setLitersPerProcess(litersPerProcess);
+                industrias[i].setPosition(posicion);
+                industrias[i].setEarningsPerProcess(500);
+            }
+
+           
         }
 
         
@@ -155,10 +160,8 @@ public class AgenteIndustria extends Agent{
         public void onTick(){      
             procesaAgua();
         }
-        
-        
-        
-        private void extractCleanWater(){
+
+        private void extractCleanWater(int indiceIndustria){
             if (debug) {
                 System.out.println("Not enough clean water in Industria " + this.getAgent().getName());
                 System.out.println("Going to extract more");
@@ -166,7 +169,8 @@ public class AgenteIndustria extends Agent{
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
-            request.setContent("EXTRAER AGUA " + String.valueOf(position));
+            String content = msgManager.extraerAgua(indiceIndustria, industrias[indiceIndustria].getPosition(), 1000000);
+            request.setContent(content);
             send(request);      
        
         }        
@@ -174,38 +178,44 @@ public class AgenteIndustria extends Agent{
         
         public void procesaAgua() {
            
-            if (lWater >= 250000 && lWaste <= (tankCapacity-250000)){
-                lWater -= 250000;
-                lWaste += 250000;
-                earnings += earningsPerProcess;
+            for(int i = 0; i<numeroIndustrias; ++i){
                 
-                if(debug){
-                    System.out.println("Industria Process Done: ");
-                    System.out.println("    Clean water Tank at: " + lWater + "L");
-                    System.out.println("    Waste Tank at: " + lWaste + "L");
-                    System.out.println("    Earnings at: " + earnings + " euros");
+                Industria ind = industrias[i];
+                int litersPerProcess = ind.getLitersPerProcess();
+                
+                if (ind.getlWater() >= litersPerProcess && ind.getlWaste() <= (ind.getTankCapacity() - litersPerProcess)){
+                    ind.setlWater(ind.getlWater() - litersPerProcess);
+                    ind.setlWaste(ind.getlWaste() + litersPerProcess);
+                    ind.generateEarnings();
+
+                    if(debug){
+                        System.out.println("Industria " + i + " Process Done: ");
+                        System.out.println("    Clean water Tank at: " + ind.getlWater() + "L");
+                        System.out.println("    Waste Tank at: " + ind.getlWaste() + "L");
+                        System.out.println("    Earnings at: " + ind.getEarnings() + " euros\n");
+                    }
+
                 }
-                                     
-            }
-            else if (lWaste > (tankCapacity-250000)){
-                System.out.println("Stopping production, no more capacity for Waste");
-            }
-            else if (lWater <= tankCapacity - 1000000){
-                extractCleanWater();
-            }
-             
-            double wasteWaterLoad = (double) lWaste / (double) tankCapacity;
+                else if (ind.getlWaste() > (ind.getTankCapacity() - litersPerProcess)){
+                    System.out.println("Stopping production, no more capacity for Waste");
+                }
+                else if (ind.getlWater() <= (ind.getTankCapacity() - 1000000)){
+                    extractCleanWater(i);
+                }
+
+                double wasteWaterLoad = (double) ind.getlWaste() / (double) ind.getTankCapacity();
+
+                if (wasteWaterLoad > 0.75){
+                    if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
+                    ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                    request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                    String content = msgManager.enviaAgua(i, ind.getlWaste());
+                    request.setContent(content);
+                    request.addReceiver(AIDDepuradora);
+                    send(request);
             
-            if (wasteWaterLoad > 0.75){
-                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
-                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                request.setContent("VERTER AGUA: " + String.valueOf(lWaste));
-                request.addReceiver(AIDDepuradora);
-                send(request);
-                //System.out.println("Industria espera contestacion de: " + depuradoraName);
-                // LO RECIBE EN EL SIMPLEBEHAVIOUR DE LA FUNCION EXTRACT WATER                   
-                
+
+                }
             }
         }      
     }
@@ -393,12 +403,13 @@ public class AgenteIndustria extends Agent{
 	}
 
 	private int evaluateAction() {
-            return lWaste;
+         //   return lWaste;
+            return 5;
 	}
 
 	private boolean performAction() {
 		// Verter agua al acantarillado
-                lWaste = 0;
+                //lWaste = 0;
                 return true;
 	}
         

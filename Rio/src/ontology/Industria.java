@@ -1,43 +1,78 @@
 package ontology;
 
 
-import jade.util.leap.*;
+public class Industria{
+    
+    private int tankCapacity;
+    private int position;
+    private int litersPerProcess;
+    private int earningsPerProcess;
+    private int earnings;
+    private int lWater;
+    private int lWaste;
+    
+    public Industria(){
+        earnings = lWaste = lWater = 0;
+    }
+    
+    public int getLitersPerProcess() {
+        return litersPerProcess;
+    }
 
-/**
-* Protege name: http://www.owl-ontologies.com/Ontology1529152759.owl#Industria
-* @author OntologyBeanGenerator v4.1
-* @version 2018/06/18, 13:01:05
-*/
-public interface Industria extends ProcesadorDeAgua {
+    public void setLitersPerProcess(int litersPerProcess) {
+        this.litersPerProcess = litersPerProcess;
+    }
 
-   /**
-   * Protege name: http://www.owl-ontologies.com/Ontology1529152759.owl#TankCapacity
-   */
-   public void addTankCapacity(int elem);
-   public boolean removeTankCapacity(int elem);
-   public void clearAllTankCapacity();
-   public Iterator getAllTankCapacity();
-   public List getTankCapacity();
-   public void setTankCapacity(List l);
+    public int getEarningsPerProcess() {
+        return earningsPerProcess;
+    }
 
-   /**
-   * Protege name: http://www.owl-ontologies.com/Ontology1529152759.owl#EarningsPerProcess
-   */
-   public void addEarningsPerProcess(int elem);
-   public boolean removeEarningsPerProcess(int elem);
-   public void clearAllEarningsPerProcess();
-   public Iterator getAllEarningsPerProcess();
-   public List getEarningsPerProcess();
-   public void setEarningsPerProcess(List l);
+    public void setEarningsPerProcess(int earningsPerProcess) {
+        this.earningsPerProcess = earningsPerProcess;
+    }
+      
+    public int getPosition(){
+        return position;
+    }
+    
+    public void setPosition(int position){
+        this.position = position;
+    }
 
-   /**
-   * Protege name: http://www.owl-ontologies.com/Ontology1529152759.owl#LitersPerProcess
-   */
-   public void addLitersPerProcess(int elem);
-   public boolean removeLitersPerProcess(int elem);
-   public void clearAllLitersPerProcess();
-   public Iterator getAllLitersPerProcess();
-   public List getLitersPerProcess();
-   public void setLitersPerProcess(List l);
+    public int getTankCapacity() {
+        return tankCapacity;
+    }
 
+    public void setTankCapacity(int tankCapacity) {
+        this.tankCapacity = tankCapacity;
+    }
+
+    public int getEarnings() {
+        return earnings;
+    }
+
+    public void setEarnings(int earnings) {
+        this.earnings = earnings;
+    }
+
+    public int getlWater() {
+        return lWater;
+    }
+
+    public void setlWater(int lWater) {
+        this.lWater = lWater;
+    }
+
+    public int getlWaste() {
+        return lWaste;
+    }
+
+    public void setlWaste(int lWaste) {
+        this.lWaste = lWaste;
+    }
+
+    public void generateEarnings(){
+        this.earnings += earningsPerProcess;
+    }
+    
 }
