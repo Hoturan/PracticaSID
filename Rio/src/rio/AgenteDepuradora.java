@@ -29,6 +29,8 @@ public class AgenteDepuradora extends Agent {
     private boolean debug = true;
     private Depuradora depuradora;
     private MessageManager msgManager;
+    private boolean askedOnce = false;
+    private int position = 3;
     
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
@@ -93,7 +95,6 @@ public class AgenteDepuradora extends Agent {
                 @Override
                 public void action() {
                     ACLMessage reply = receive();
-                    System.out.println("Depuradora espera contestacion de rio");
                     if(reply != null){
                         switch(reply.getPerformative()){
                             case ACLMessage.INFORM:
@@ -106,12 +107,15 @@ public class AgenteDepuradora extends Agent {
                             case ACLMessage.REJECT_PROPOSAL:
                                 System.out.println("Depuradora no puede descargar agua al rio");
                                 break;
+                            case ACLMessage.PROPOSE:
+                                System.out.println("Depuradora has recieved propose: " + reply.getContent());
+                                break;
                             default:
                                 System.out.println("MALFORMED MESSAGE");
                                 break;
                         }
                     }
-                    block();                  
+                    else block();                  
                 }
 
                 @Override
@@ -126,19 +130,25 @@ public class AgenteDepuradora extends Agent {
             if (depuradora.getTicksLeft() == 0){
                 if (depuradora.getlWaste() == 0){
                     System.out.println("Depuradora has no waste to clean!!!");
+                    if (!askedOnce){
+                        askedOnce = true;
+                        askForWaste();
+                    }
                 }
                 else if (depuradora.getlWaste() > 0){   
                     depuradora.setlWater(depuradora.getlWaste());
                     depuradora.setlWaste(0);
                     ///// DESCARGAR EL AGUA LIMPIA AL RIO
                     pourCleanWater(); 
+                    askedOnce = false;
                     if (debug){
                         System.out.println("Depuradora Process Done");    
                         System.out.println("    Waste Tank at: " + depuradora.getlWaste() + "\n");
                     }
                 }
 
-                if (pourSuccessful){                   
+                if (pourSuccessful){  
+                    askedOnce = false;
                     pourSuccessful = false;
                     depuradora.restartTicksLeft();
                 
@@ -159,12 +169,15 @@ public class AgenteDepuradora extends Agent {
             // Fill the CFP message
             ACLMessage msg = new ACLMessage(ACLMessage.CFP);
             for (int i = 0; i < AIDsIndustrias.size(); ++i) {
-                    msg.addReceiver(AIDsIndustrias.get(i));
+                msg.addReceiver(AIDsIndustrias.get(i));
             }
             msg.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
             // We want to receive a reply in 10 secs
             msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
-            msg.setContent("dummy-action");
+            msg.setContent("perform-AIA-exam");
+            msg.setConversationId("cpf");
+            ContractNetInitiatorBehaviour cib = new ContractNetInitiatorBehaviour(myAgent, msg);
+            addBehaviour(cib);
             
         }
     }
@@ -392,7 +405,7 @@ public class AgenteDepuradora extends Agent {
                 }
                 finished = true;
             }
-            block();
+            else block();
         }
 
         @Override

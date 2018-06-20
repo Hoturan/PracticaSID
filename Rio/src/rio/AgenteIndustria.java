@@ -60,7 +60,9 @@ public class AgenteIndustria extends Agent{
     
     private AID AIDrio;
     private AID AIDDepuradora;
-    private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();    
+    private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
+           
+    ContractNetResponderBehaviour cN;
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
         private boolean finish = false;
@@ -94,6 +96,18 @@ public class AgenteIndustria extends Agent{
                         case ACLMessage.REJECT_PROPOSAL:
                             System.out.println("AgenteIndustria no puede realizar la accion deseada");
                             break;
+                        /*case ACLMessage.CFP:
+                            try{
+                                cN.prepareResponse(reply);
+
+                            }
+                            catch(NotUnderstoodException e){
+                                myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Did not understand", e);
+                            }
+                            catch(RefuseException e){
+                                myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Refused", e);
+                            }
+                            break;*/     
                         default:
                             System.out.println("MALFORMED MESSAGE");
                             break;
@@ -327,6 +341,45 @@ public class AgenteIndustria extends Agent{
         }
     }
     
+    private class ContractNetResponderBehaviour extends ContractNetResponder
+    {
+                  
+ 
+        public ContractNetResponderBehaviour(Agent a, MessageTemplate mt)
+        {
+            super(a,mt);
+        }
+ 
+        protected ACLMessage prepareResponse(ACLMessage cfp) throws NotUnderstoodException, RefuseException {
+                System.out.println("Agent '"+getLocalName()+"' receives a CFP from Agent '"+cfp.getSender().getName()+"' to perform action '"+cfp.getContent() + "'");
+                // We provide a proposal
+                evaluation = evaluateAction();
+                System.out.println("Agent '"+getLocalName()+"' proposes  '"+ evaluation + "'");
+                ACLMessage propose = cfp.createReply();
+                propose.setPerformative(ACLMessage.PROPOSE);
+                propose.setContent(String.valueOf(evaluation));
+                return propose;
+            }
+ 
+            protected ACLMessage prepareResultNotification(ACLMessage cfp, ACLMessage propose,ACLMessage accept) throws FailureException {
+                System.out.println("Agent '"+getLocalName()+"' accepts proposal and is about to perform an action");
+                if (performAction()) {
+                    System.out.println("Agent '"+getLocalName()+"' succesfully performs action");
+                    ACLMessage inform = accept.createReply();
+                    inform.setPerformative(ACLMessage.INFORM);
+                    return inform;
+                }
+                else {
+                    System.out.println("Agent '"+getLocalName()+"' failed to perform action");
+                    throw new FailureException("unexpected-error");
+                }
+            }
+ 
+            protected void handleRejectProposal(ACLMessage reject)
+                        {
+                System.out.println("Agent '"+getLocalName()+"' rejects proposal");
+            }
+    }
     
     protected void setup()
     {
@@ -348,63 +401,24 @@ public class AgenteIndustria extends Agent{
             IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, secondsPerTick*1000);
             this.addBehaviour(Ib);
             
+            System.out.println("Agent "+getLocalName()+" waiting for CFP...");
+            MessageTemplate template = MessageTemplate.and(
+                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
+                        MessageTemplate.MatchPerformative(ACLMessage.CFP) );
+            
+            cN = new ContractNetResponderBehaviour(this, template);
+            this.addBehaviour(cN);
+            
             DFService.register(this,dfd);
         } catch (FIPAException e) {
             myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Cannot register with DF", e);
             doDelete();
-        }
-        
-        
-                
-        System.out.println("Agent "+getLocalName()+" waiting for CFP...");
-        MessageTemplate template = MessageTemplate.and(
-                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
-                        MessageTemplate.MatchPerformative(ACLMessage.CFP) );
+        } 
 
-        this.addBehaviour(new ContractNetResponder(this, template) {
-                @Override
-                protected ACLMessage handleCfp(ACLMessage cfp) throws NotUnderstoodException, RefuseException {
-                        System.out.println("Agent "+getLocalName()+": CFP received from "+cfp.getSender().getName()+". Action is "+cfp.getContent());
-                        int proposal = evaluateAction();
-                        if (proposal > 2) {
-                                // We provide a proposal
-                                System.out.println("Agent "+getLocalName()+": Proposing "+proposal);
-                                ACLMessage propose = cfp.createReply();
-                                propose.setPerformative(ACLMessage.PROPOSE);
-                                propose.setContent(String.valueOf(proposal));
-                                return propose;
-                        }
-                        else {
-                                // We refuse to provide a proposal
-                                System.out.println("Agent "+getLocalName()+": Refuse");
-                                throw new RefuseException("evaluation-failed");
-                        }
-                }
-
-                @Override
-                protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose,ACLMessage accept) throws FailureException {
-                        System.out.println("Agent "+getLocalName()+": Proposal accepted");
-                        if (performAction()) {
-                                System.out.println("Agent "+getLocalName()+": Pour Waste action successfully performed");
-                                ACLMessage inform = accept.createReply();
-                                inform.setPerformative(ACLMessage.INFORM);
-                                return inform;
-                        }
-                        else {
-                                System.out.println("Agent "+getLocalName()+": Pour Waste action execution failed");
-                                throw new FailureException("unexpected-error");
-                        }	
-                }
-
-                protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose, ACLMessage reject) {
-                        System.out.println("Agent "+getLocalName()+": Proposal rejected");
-                }
-        } );
 	}
 
 	private int evaluateAction() {
-         //   return lWaste;
-            return 5;
+            return lWaste;
 	}
 
 	private boolean performAction() {
