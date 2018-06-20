@@ -14,11 +14,15 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREResponder;
 import jade.util.Logger;
+
+
+import ontology.Rio;
  
  
 public class AgenteRio extends Agent
 {
-
+    
+    private Rio rioBesos;
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
     private class RioTickerBehaviour extends TickerBehaviour    {
@@ -34,6 +38,7 @@ public class AgenteRio extends Agent
         {
             this.message = "Agent " + myAgent +" with RioTickerBehaviour in action!!" + count_chocula;
             count_chocula = 0;
+            rioBesos = new Rio(10); // rio de 10 tramos
         }
  
         public int onEnd()
@@ -43,18 +48,17 @@ public class AgenteRio extends Agent
         }
         
         public void onTick(){
-            
             avanzaCursoAgua();
         }
         
         public void avanzaCursoAgua() {
             System.out.println("Agua avanza curso (No implementado)");
-        
+            rioBesos.avanzarCurso();
         }      
  
     }
 
-    private class WaitMessageAndReplyBehaviour extends CyclicBehaviour {
+    /*private class WaitMessageAndReplyBehaviour extends CyclicBehaviour {
  
         public WaitMessageAndReplyBehaviour(Agent a) {
             super(a);
@@ -75,16 +79,54 @@ public class AgenteRio extends Agent
                 }    
             });
         }
-    } 
+    } */
+    
+    private class WaitMessageAndReplyBehaviour extends SimpleBehaviour{
+
+        private boolean finished = false;
+        
+        public WaitMessageAndReplyBehaviour(Agent a) {
+            super(a);
+        }
+        
+        @Override
+        public void action() {
+            try{ 
+                ACLMessage msg = blockingReceive();
+                if(msg != null){
+                    switch(msg.getPerformative()){
+                        case ACLMessage.REQUEST:
+                            System.out.println("AgenteRio hs received the following message: " + msg);
+                            break;
+                        default:
+                            System.out.println("MALFORMED MESSAGE");
+                            break;
+                    }
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        
+        @Override
+        public boolean done() {
+            return finished;
+        }
+        
+    }
     
     protected void setup()
     {
+        
+        
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
         sd.setType("AgenteRio"); 
         sd.setName(getName());
         dfd.setName(getAID());
         dfd.addServices(sd);
+       
 
         try {
             DFService.register(this,dfd);

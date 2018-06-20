@@ -7,6 +7,6 @@ package ontology;
 * @author OntologyBeanGenerator v4.1
 * @version 2018/06/18, 13:01:05
 */
-public interface Contaminada extends MasaDeAgua {
+public interface Contaminada /*extends MasaDeAgua*/ {
 
 }

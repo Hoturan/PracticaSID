@@ -6,17 +6,23 @@ public class Rio{
 	
     private List<MasaDeAgua> flow;
 
-    public Rio(){}
+    public Rio(int size){
+        /*for(int i = 0; i<size; ++i) {
+            MasaDeAgua mtemp = new MasaDeAgua();
+            mtemp.setPosicion(i);
+            flow.add(mtemp);
+        }*/
+    }
 
     // avanza todas las masas de agua del rio 1 posicion
     public void avanzarCurso(){
-            for(int i = flow.size()-1; i>0; --i){
+           /* for(int i = flow.size()-1; i>0; --i){
                 MasaDeAgua mtemp = flow.get(i-1);
                 mtemp.aumentarPosicion();
                 flow.set(i, mtemp);
             }
             MasaDeAgua mNew = new MasaDeAgua();
-            flow.set(0, mNew); // al rio siempre le llega agua limpia
+            flow.set(0, mNew); // al rio siempre le llega agua limpia*/
     }
 
 

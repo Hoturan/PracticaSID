@@ -8,7 +8,7 @@ import ontology.*;
 * @author OntologyBeanGenerator v4.1
 * @version 2018/06/18, 13:01:05
 */
-public class DefaultRio implements Rio {
+public class DefaultRio/* implements Rio */{
 
   private static final long serialVersionUID = 3688839762589084456L;
 

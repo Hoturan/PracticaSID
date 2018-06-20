@@ -3,9 +3,9 @@ package ontology;
 public class MasaDeAgua{
 	
     private int volumen;					// Millon/es de litros
-    private float solidosEnSuspension; 			// mg/l
-    private float demandaBiologicaDeOxigeno;                // mg/l
-    private float demandaQuimicaDeOxigeno;                  // mg/l
+    private float solidosEnSuspension;                          // mg/l
+    private float demandaBiologicaDeOxigeno;                    // mg/l
+    private float demandaQuimicaDeOxigeno;                      // mg/l
     private float totalNitratos;				// mg/l
     private float totalSulfatos;				// mg/l
     private int posicion;

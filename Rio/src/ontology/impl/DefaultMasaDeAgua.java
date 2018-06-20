@@ -9,7 +9,7 @@ import ontology.*;
 * @author OntologyBeanGenerator v4.1
 * @version 2018/06/18, 13:01:05
 */
-public class DefaultMasaDeAgua implements MasaDeAgua {
+public class DefaultMasaDeAgua /*implements MasaDeAgua */{
 
   private static final long serialVersionUID = 3688839762589084456L;
 

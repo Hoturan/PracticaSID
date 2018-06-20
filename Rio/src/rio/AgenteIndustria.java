@@ -102,9 +102,11 @@ public class AgenteIndustria extends Agent{
             if (debug) System.out.println("No clean water left in Industria " + this.getAgent().getName());
             if (!extractingWater){
                 if (debug) System.out.println("Going to extract more");
-                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
                 request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
                 request.addReceiver(AIDrio);
+                request.setContent("EXTRAER AGUA");
+                send(request);
                 extractingWater = true;
                 myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
                     @Override
