@@ -16,15 +16,16 @@ public class Rio{
     }
 
     private void muestraRio(){
-        String river = "";
+        System.out.println("ESTADO DEL RIO:");
         for(int i = 0; i<flow.length; ++i){
-            river += String.valueOf(flow[i].getVolumen());
+            System.out.print(String.valueOf(flow[i].getVolumen()) + " - ");
         }
-        System.out.println("ESTADO DEL RIO: \n " + river + "\n");
+        System.out.println("MAR \n");
     }
     
     // avanza todas las masas de agua del rio 1 posicion
     public void avanzarCurso(){
+            System.out.println("RIO AVANZA CURSO");
            for(int i = flow.length-1; i>0; --i){
                 MasaDeAgua mtemp = flow[i-1];
                 mtemp.aumentarPosicion();
@@ -39,25 +40,28 @@ public class Rio{
     // devuelve un entero informando de los millones de litros extraidos
     public int extraerAgua(int index, int volumenExtraer){
           MasaDeAgua mtemp = flow[index];
-          int volumenActual = mtemp.getVolumen();
-          if(volumenActual == 0) return 0;
-          if(volumenActual >= volumenExtraer){
-              volumenActual -= volumenExtraer;
-              mtemp.setVolumen(volumenActual);
-              flow[index] = mtemp;
-              return volumenExtraer;
+          if(mtemp.aguaLimpia()){ 
+            int volumenActual = mtemp.getVolumen();
+            if(volumenActual == 0) return 0;
+            if(volumenActual >= volumenExtraer){
+                volumenActual -= volumenExtraer;
+                mtemp.setVolumen(volumenActual);
+                flow[index] = mtemp;
+                return volumenExtraer;
+            }
+            else{
+                mtemp.setVolumen(0);
+                flow[index] = mtemp;
+                return volumenActual;
+            }
           }
-          else{
-              mtemp.setVolumen(0);
-              flow[index] = mtemp;
-              return volumenActual;
-          }
+          else return 0;
     }
 
     // descarga agua al rio (teoricamente limpia)
-    public void descargarAgua(int index, MasaDeAgua masaDescarga){
+    public void descargarAgua(int index, int litrosDescarga){
             MasaDeAgua mtemp = flow[index];
-            mtemp.mezclaMasasDeAgua(masaDescarga);
+            mtemp.setVolumen(mtemp.getVolumen() + litrosDescarga);
             flow[index] = mtemp;
     }
 }

@@ -9,6 +9,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -43,6 +44,7 @@ public class AgenteDepuradora extends Agent {
     private final Logger myLogger = Logger.getMyLogger(getClass().getName());
 
     private boolean debug = true;
+    private int position = 3;
     
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
@@ -57,12 +59,9 @@ public class AgenteDepuradora extends Agent {
     
      //Number of ticks until waste is clean
     int count_until_depurado = 3;
-    private int lWater = 0;
     //liters of filthy water 
-    private int tankCapacity = 1000000; //Liters
-    private int lWaste = 500000;
-
-    private int lWasteContainer = 0;
+    private int tankCapacity = 2500000; //Liters
+    private int lWaste = 0;
     
    
     
@@ -91,70 +90,75 @@ public class AgenteDepuradora extends Agent {
             return count_chocula;
         }
         
-        public void onTick(){
-            
+        public void onTick(){       
             depurarAgua();
             block();
         }
         
         private void pourCleanWater(){
-            if (debug) System.out.println("Pouring clean water to " + AIDrio);
-            if (!pouringWater){
-                if (debug) System.out.println("Going to pour clean water to the River");
-                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                request.addReceiver(AIDrio);
-                request.setContent("Pour Water");
-                pouringWater = true;
-               /* myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
-                    @Override
-                    protected  void  handleInform(ACLMessage  inform)  {   
-                        System.out.println("Protocol  finished. Received  the  following  message:  "+inform); 
-                        lWater = 0;
-                        pouringWater = false;
-                        pourSuccessful = true;
-                    }
+            if (debug) System.out.println("Pouring clean water to " + AIDrio.getLocalName());
+            ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
+            request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+            request.addReceiver(AIDrio);
+            request.setContent("DESCARGAR AGUA " + String.valueOf(position) + " " + String.valueOf(lWaste));
+            send(request);
+            
+            myAgent.addBehaviour(new SimpleBehaviour(){
 
-                    @Override
-                    protected void handleRefuse(ACLMessage reject){
-                        System.out.println("Protocol  finished. No more water left in this section of the river");
-                        pouringWater = false;
+                private boolean finished = false;
+
+                @Override
+                public void action() {
+                    ACLMessage reply = receive();
+                    System.out.println("Depuradora espera contestacion de rio");
+                    if(reply != null){
+                        switch(reply.getPerformative()){
+                            case ACLMessage.INFORM:
+                                String content = reply.getContent();
+                                String[] words = content.split("\\s+");
+                                System.out.println("AgenteDepuradora has received the following message: " + content);
+                                int litrosDescargados = Integer.parseInt(words[words.length-1]);
+                                lWaste -= litrosDescargados;
+                                break;
+                            case ACLMessage.REJECT_PROPOSAL:
+                                System.out.println("Depuradora no puede descargar agua al rio");
+                                break;
+                            default:
+                                System.out.println("MALFORMED MESSAGE");
+                                break;
+                        }
                     }
-                });*/
-            }
-                      
+                    block();                  
+                }
+
+                @Override
+                public boolean done() {
+                    return finished;
+                }        
+            });
+            pourSuccessful = true;
         }
         
         private void depurarAgua(){
             if (count_until_depurado == 0){
                 if (lWaste == 0){
-                    if (lWasteContainer == 0) System.out.println("Depuradora has no waste to clean!!!");
-                    else lWaste = lWasteContainer;
+                    System.out.println("Depuradora has no waste to clean!!!");
                 }
-                else{                   
-                    lWater += lWaste;
-                    lWaste = 0;
-                    lWaste = lWasteContainer;
+                else if (lWaste > 0){                    
+                    ///// DESCARGAR EL AGUA LIMPIA AL RIO
+                    pourCleanWater(); 
                     if (debug){
                         System.out.println("Depuradora Process Done");    
-                        System.out.println("    Clean water Tank: " + lWater); 
-                        System.out.println("    Waste Tank at: "+ lWaste);
-                        
+                        System.out.println("    Waste Tank at: " + lWaste);
                     }
                 }
-                
-                if (lWater > 0 && !pouringWater){
-                    if (debug) System.out.println("Pouring clean water in river");
-                    pourCleanWater();
-                }
-                
-                
+
                 if (pourSuccessful){                   
                     pourSuccessful = false;
                     count_until_depurado = 3;
                 
-                    float percentage = lWasteContainer / tankCapacity;
-                    if (percentage  <= 50) askForWaste();
+                    double percentage = (double) lWaste / (double) tankCapacity;
+                    if (percentage  <= 50.0) askForWaste();
                 }
                 
             }
@@ -165,7 +169,7 @@ public class AgenteDepuradora extends Agent {
         
         private void askForWaste(){
             nResponders = AIDsIndustrias.size();
-            System.out.println("Asking for more waste to one of "+nResponders+" Industria responders.");
+            System.out.println("Asking for more waste to one of " + nResponders + " Industria responders.");
 
             // Fill the CFP message
             ACLMessage msg = new ACLMessage(ACLMessage.CFP);
@@ -366,35 +370,59 @@ public class AgenteDepuradora extends Agent {
  
     }
     
-    private class WaitMessageAndReplyBehaviour extends CyclicBehaviour {
- 
+    private class WaitMessageAndReplyBehaviour extends SimpleBehaviour {       
+
         public WaitMessageAndReplyBehaviour(Agent a) {
             super(a);
         }
- 
+        
+        private boolean finished = false;
+        
         @Override
         public void action() {
-            MessageTemplate  mt=  AchieveREResponder.createMessageTemplate(FIPANames.InteractionProtocol.FIPA_REQUEST);  
-            myAgent.addBehaviour( new  AchieveREResponder(myAgent,  mt)  {    
-                @Override
-                protected  ACLMessage  prepareResultNotification(ACLMessage  request,  ACLMessage  resp)  {   
-                    System.out.println("Depuradora " + myAgent.getAID().getLocalName() +  " has  received  the  following  message: " +request);    
-                    ACLMessage  informDone  =  request.createReply();  
-                    informDone.setPerformative(ACLMessage.INFORM);
-                    
-                    int l = Integer.valueOf(request.getContent());
-                    int litersAccepted;
-                    if (lWasteContainer + l > tankCapacity){
-                        int extra = lWasteContainer + l - tankCapacity;
-                        litersAccepted = l -  extra;
-                    }
-                    else litersAccepted = l;
-                    
-                    informDone.setContent(String.valueOf(litersAccepted));
-                    return  informDone;  
-                }    
-            });
+            
+            ACLMessage request = receive();
+            if(request != null){
+                switch(request.getPerformative()){
+                    case ACLMessage.REQUEST:
+                        String content = request.getContent();
+                        String[] words = content.split("\\s+");
+                        System.out.println("AgenteDepuradora has received the following message: " + content);
+                        AID sender = request.getSender();
+                        System.out.println("The message was sent by: " + sender.getLocalName());
+                        if(sender.getLocalName().equals("AgenteIndustria")){
+                            ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+                            reply.addReceiver(sender);
+                            reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); // no se si es necesario
+                            String msg = "Se han podido almacenar: ";
+                            System.out.println("Depuradora is replying to AgenteIndustria");
+                            int litrosRecibidos = Integer.parseInt(words[words.length-1]);
+                            if(tankCapacity - (lWaste + litrosRecibidos) > 0){
+                                // si la depuradora puede almacenar toda el agua recibida:
+                                lWaste += litrosRecibidos;
+                                msg += String.valueOf(litrosRecibidos);
+                            }
+                            else{
+                                int volumeLeft = tankCapacity - lWaste;
+                                msg += String.valueOf(volumeLeft);
+                                lWaste += volumeLeft;
+                            }
+                            reply.setContent(msg);
+                            send(reply);
+                        }
+                        break;
+                    default:
+                        System.out.println("MALFORMED MESSAGE");
+                        break;
+                }
+                finished = true;
+            }
             block();
+        }
+
+        @Override
+        public boolean done() {
+            return finished;
         }
     } 
     
@@ -416,7 +444,7 @@ public class AgenteDepuradora extends Agent {
             DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 3000);
             this.addBehaviour(dT);
         
-            AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new  AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
+            AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
             this.addBehaviour(RioMessageBehaviour);
             DFService.register(this,dfd);
         } 
