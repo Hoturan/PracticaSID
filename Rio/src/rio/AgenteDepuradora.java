@@ -54,7 +54,6 @@ public class AgenteDepuradora extends Agent {
    private int nResponders;
  
     private AID AIDrio;
-    private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
     
      //Number of ticks until waste is clean
@@ -310,19 +309,8 @@ public class AgenteDepuradora extends Agent {
             // To control that we have at least found 1 of each
             boolean minARio = false;
             
-            AID[] aux = searchDF("AgenteDepuradora");
-            if (aux != null){
-                for (int i = 0; i < aux.length; ++i){
-                    if (!aux[i].equals(myAgent.getAID())){
-                        if (debug){
-                        System.out.println(myAgent.getAID().getName() + " is adding Depuradora with AID: " + aux[i]);
-                    }
-                    AIDsDepuradoras.add(aux[i]);
-                    }                 
-                }
-            }
             
-            aux = searchDF("AgenteIndustria");
+            AID[] aux = searchDF("AgenteIndustria");
             if (aux != null){
                 for (int i = 0; i < aux.length; ++i){
                     if (debug){

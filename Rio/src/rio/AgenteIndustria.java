@@ -68,52 +68,52 @@ public class AgenteIndustria extends Agent{
     protected int evaluation;
     
     private AID AIDrio;
-    private ArrayList<AID> AIDsDepuradoras = new ArrayList<AID>();
+    private AID AIDDepuradora;
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
            
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
-        private boolean finished = false;
+        private boolean finish = false;
         @Override
-        public void action() {
-            ACLMessage reply = receive();
-            //System.out.println("Industria espera contestacion de rio");
-            if(reply != null){
-                switch(reply.getPerformative()){
-                    case ACLMessage.INFORM:
-                        String content = reply.getContent();
-                        String[] words = content.split("\\s+");
-                        System.out.println("AgenteIndustria has received the following message: " + content);
-                        int litros = Integer.parseInt(words[words.length-1]);
-                        switch(reply.getSender().getLocalName()){
-                            case "AgenteRio":
-                                lWater += litros;
-                                System.out.println("Industria tiene " + lWater + " litros de agua");
-                                break;
-                            case "AgenteDepuradora":
-                                lWaste -= litros;
-                                System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
-                                break;
-                            default:
-                                System.out.println("Oops, algo ha ido mal!");
-                                break;
-                        }
+            public void action() {
+                ACLMessage reply = receive();
+                //System.out.println("Industria espera contestacion de rio");
+                if(reply != null){
+                    switch(reply.getPerformative()){
+                        case ACLMessage.INFORM:
+                            String content = reply.getContent();
+                            String[] words = content.split("\\s+");
+                            System.out.println("AgenteIndustria has received the following message: " + content);
+                            int litros = Integer.parseInt(words[words.length-1]);
+                            switch(reply.getSender().getLocalName()){
+                                case "AgenteRio":
+                                    lWater += litros;
+                                    System.out.println("Industria tiene " + lWater + " litros de agua");
+                                    break;
+                                case "AgenteDepuradora":
+                                    lWaste -= litros;
+                                    System.out.println("Industria tiene " + lWaste + " litros de agua sucia");
+                                    break;
+                                default:
+                                    System.out.println("Oops, algo ha ido mal!");
+                                    break;
+                            }
 
-                        break;
-                    case ACLMessage.REJECT_PROPOSAL:
-                        System.out.println("AgenteIndustria no puede realizar la accion deseada");
-                        break;
-                    default:
-                        System.out.println("MALFORMED MESSAGE");
-                        break;
+                            break;
+                        case ACLMessage.REJECT_PROPOSAL:
+                            System.out.println("AgenteIndustria no puede realizar la accion deseada");
+                            break;
+                        default:
+                            System.out.println("MALFORMED MESSAGE");
+                            break;
+                    }
                 }
-            }
-            block();                  
-        }     
+                block();                  
+            }     
 
         @Override
         public boolean done() {
-            return finished;
+            return finish;
         }
 
                 
@@ -197,20 +197,15 @@ public class AgenteIndustria extends Agent{
             double wasteWaterLoad = (double) lWaste / (double) tankCapacity;
             
             if (wasteWaterLoad > 0.75){
-                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");
-
-                for (int i = 0; i < AIDsDepuradoras.size() && lWaste > tankCapacity / 2; ++i){
-                    
-                    ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                    request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                    request.setContent("VERTER AGUA: " + String.valueOf(lWaste));
-                    request.addReceiver(AIDsDepuradoras.get(i));
-                    send(request);
-
-                    final String depuradoraName =  AIDsDepuradoras.get(i).getLocalName();
-                    //System.out.println("Industria espera contestacion de: " + depuradoraName);
-                    // LO RECIBE EN EL SIMPLEBEHAVIOUR DE LA FUNCION EXTRACT WATER                   
-                }
+                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
+                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                request.setContent("VERTER AGUA: " + String.valueOf(lWaste));
+                request.addReceiver(AIDDepuradora);
+                send(request);
+                //System.out.println("Industria espera contestacion de: " + depuradoraName);
+                // LO RECIBE EN EL SIMPLEBEHAVIOUR DE LA FUNCION EXTRACT WATER                   
+                
             }
         }      
     }
@@ -271,18 +266,27 @@ public class AgenteIndustria extends Agent{
             boolean minARio = false;
             
             AID[] aux = searchDF("AgenteDepuradora");
-            if (aux != null){
-                for (int i = 0; i < aux.length; ++i){
-                    if (debug){
-                        System.out.println(myAgent.getAID().getName() + " is adding Depuradora with AID: " + aux[i]);
-                    }
-                    minADepuradora = true;
-                    AIDsDepuradoras.add(aux[i]);
+            if (aux.length == 1){
+                if (debug){
+                    System.out.println(myAgent.getAID().getName() + " is adding Depuradora with AID: " + aux[0]);
                 }
+                minADepuradora = true;
+                AIDDepuradora = aux[0];
             }
             else {
-                myLogger.log(Logger.SEVERE, "No AgenteDepuradora Found! - Cannot continue");
-                doDelete();
+                if (aux == null){
+                    myLogger.log(Logger.SEVERE, "No AgenteDepuradora Found! - Cannot continue");
+                    doDelete();
+                }
+                else {
+                    myLogger.log(Logger.SEVERE, "There should NOT be 2 AgenteDepuradora! - Taking First as valid");
+                    if (debug){
+                        System.out.println("Depuradora added with AID: " + aux[0]);
+                    }
+                    minADepuradora = true;
+                    AIDDepuradora = aux[0];
+                }
+                  
             }
             
             aux = searchDF("AgenteRio");
