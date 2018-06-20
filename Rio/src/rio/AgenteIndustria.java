@@ -21,20 +21,9 @@ import jade.domain.FIPAException;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.proto.AchieveREInitiator;
-import jade.proto.AchieveREResponder;
-import jade.proto.ContractNetInitiator;
 import jade.proto.ContractNetResponder;
 import jade.util.Logger;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Level;
 import ontology.Industria;
 import ontology.MessageManager;
 /**
@@ -47,9 +36,9 @@ public class AgenteIndustria extends Agent{
     private boolean debug = true;
  
     private int secondsPerTick = 5;
-    private Industria[] industrias;
-    private int numeroIndustrias;
+    private Industria industria;
     private MessageManager msgManager;
+    private int identificador = 9156;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
@@ -78,12 +67,12 @@ public class AgenteIndustria extends Agent{
                             int indiceIndustria = msgManager.getIndice(words);
                             switch(reply.getSender().getLocalName()){
                                 case "AgenteRio":
-                                    industrias[indiceIndustria].setlWater(industrias[indiceIndustria].getlWater() + litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWater() + " litros de agua");
+                                    industria.setlWater(industria.getlWater() + litros);
+                                    System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWater() + " litros de agua");
                                     break;
                                 case "AgenteDepuradora":
-                                    industrias[indiceIndustria].setlWaste(industrias[indiceIndustria].getlWaste() - litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWaste() + " litros de agua sucia");
+                                    industria.setlWaste(industria.getlWaste() - litros);
+                                    System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWaste() + " litros de agua sucia");
                                     break;
                                 default:
                                     System.out.println("Oops, algo ha ido mal!");
@@ -119,31 +108,24 @@ public class AgenteIndustria extends Agent{
         public void onStart(){
             msgManager = new MessageManager();
             Object[] args = getArguments();
-            numeroIndustrias = Integer.valueOf(args[0].toString());
-            int tankCapacity = Integer.valueOf(args[1].toString());       
-            int posicion = Integer.valueOf(args[2].toString());             
-            int litersPerProcess = Integer.valueOf(args[3].toString());   
+            int tankCapacity = Integer.valueOf(args[0].toString());       
+            int posicion = Integer.valueOf(args[1].toString());             
+            int litersPerProcess = Integer.valueOf(args[2].toString());   
             
             if (debug) {
                 System.out.println("Parametros de " + myAgent.getAID().getLocalName());
-                System.out.println("    Numero de industrias ---> " + numeroIndustrias);
                 System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
                 System.out.println("    Tramo de la Indunstria ---> " + posicion);
                 System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
                 System.out.println("-------------------------------------------------------");
             }
             
-            industrias = new Industria[numeroIndustrias];
-            
-            for(int i = 0; i<numeroIndustrias; ++i){
-                industrias[i] = new Industria();
-                industrias[i].setTankCapacity(tankCapacity);
-                industrias[i].setLitersPerProcess(litersPerProcess);
-                industrias[i].setPosition(posicion);
-                industrias[i].setEarningsPerProcess(500);
-            }
-
-           
+            industria = new Industria();
+            industria.setTankCapacity(tankCapacity);
+            industria.setLitersPerProcess(litersPerProcess);
+            industria.setPosition(posicion);
+            industria.setEarningsPerProcess(500);
+          
         }
 
         
@@ -169,7 +151,7 @@ public class AgenteIndustria extends Agent{
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
-            String content = msgManager.extraerAgua(indiceIndustria, industrias[indiceIndustria].getPosition(), 1000000);
+            String content = msgManager.extraerAgua(indiceIndustria, industria.getPosition(), 1000000);
             request.setContent(content);
             send(request);      
        
@@ -177,47 +159,44 @@ public class AgenteIndustria extends Agent{
               
         
         public void procesaAgua() {
-           
-            for(int i = 0; i<numeroIndustrias; ++i){
+
                 
-                Industria ind = industrias[i];
-                int litersPerProcess = ind.getLitersPerProcess();
+
+                int litersPerProcess = industria.getLitersPerProcess();
                 
-                if (ind.getlWater() >= litersPerProcess && ind.getlWaste() <= (ind.getTankCapacity() - litersPerProcess)){
-                    ind.setlWater(ind.getlWater() - litersPerProcess);
-                    ind.setlWaste(ind.getlWaste() + litersPerProcess);
-                    ind.generateEarnings();
+                if (industria.getlWater() >= litersPerProcess && industria.getlWaste() <= (industria.getTankCapacity() - litersPerProcess)){
+                    industria.setlWater(industria.getlWater() - litersPerProcess);
+                    industria.setlWaste(industria.getlWaste() + litersPerProcess);
+                    industria.generateEarnings();
 
                     if(debug){
-                        System.out.println("Industria " + i + " Process Done: ");
-                        System.out.println("    Clean water Tank at: " + ind.getlWater() + "L");
-                        System.out.println("    Waste Tank at: " + ind.getlWaste() + "L");
-                        System.out.println("    Earnings at: " + ind.getEarnings() + " euros\n");
+                        System.out.println("Industria " + identificador + " Process Done: ");
+                        System.out.println("    Clean water Tank at: " + industria.getlWater() + "L");
+                        System.out.println("    Waste Tank at: " + industria.getlWaste() + "L");
+                        System.out.println("    Earnings at: " + industria.getEarnings() + " euros\n");
                     }
 
                 }
-                else if (ind.getlWaste() > (ind.getTankCapacity() - litersPerProcess)){
+                else if (industria.getlWaste() > (industria.getTankCapacity() - litersPerProcess)){
                     System.out.println("Stopping production, no more capacity for Waste");
                 }
-                else if (ind.getlWater() <= (ind.getTankCapacity() - 1000000)){
-                    extractCleanWater(i);
+                else if (industria.getlWater() <= (industria.getTankCapacity() - 1000000)){
+                    extractCleanWater(identificador);
                 }
 
-                double wasteWaterLoad = (double) ind.getlWaste() / (double) ind.getTankCapacity();
+                double wasteWaterLoad = (double) industria.getlWaste() / (double) industria.getTankCapacity();
 
                 if (wasteWaterLoad > 0.75){
                     if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
                     ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
                     request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                    String content = msgManager.enviaAgua(i, ind.getlWaste());
+                    String content = msgManager.enviaAgua(identificador, industria.getlWaste());
                     request.setContent(content);
                     request.addReceiver(AIDDepuradora);
                     send(request);
-            
-
                 }
-            }
-        }      
+        }
+              
     }
     
     public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
@@ -268,10 +247,7 @@ public class AgenteIndustria extends Agent{
         @Override
         public void action()
         {
-            // Don't set type to obtain all Agents
-            //templateSd.setType("AgenteRio");
-            
-            // To control that we have at least found 1 of each
+
             boolean minADepuradora = false;
             boolean minARio = false;
             
