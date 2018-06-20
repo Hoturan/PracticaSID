@@ -27,7 +27,7 @@ public class AgenteRio extends Agent
     private Rio rioBesos;
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
-    private class RioTickerBehaviour extends TickerBehaviour    {
+    private class RioTickerBehaviour extends TickerBehaviour {
         String message;
         int count_chocula;
 
@@ -52,40 +52,11 @@ public class AgenteRio extends Agent
         }
         
         public void onTick(){
-            avanzaCursoAgua();
-            block();
-        }
-        
-        public void avanzaCursoAgua() {
-            System.out.println("Agua avanza curso");
             rioBesos.avanzarCurso();
-        }      
- 
+        }
+    
     }
 
-    /*private class WaitMessageAndReplyBehaviour extends CyclicBehaviour {
- 
-        public WaitMessageAndReplyBehaviour(Agent a) {
-            super(a);
-        }
- 
-        @Override
-        public void action() {
-            MessageTemplate  mt=  AchieveREResponder.createMessageTemplate(FIPANames.InteractionProtocol.FIPA_REQUEST);  
-            myAgent.addBehaviour( new  AchieveREResponder(myAgent,  mt)  {    
-                @Override
-                protected  ACLMessage  prepareResultNotification(ACLMessage  request,  ACLMessage  resp)  {   
-                    System.out.println("Responder  has  received  the  following  message:" +request);    
-                    ACLMessage  informDone  =  request.createReply();  
-                    informDone.setPerformative(ACLMessage.INFORM);    
-                    informDone.setContent("inform  done");
-                    // River mass -10 or something like that
-                    return  informDone;  
-                }    
-            });
-        }
-    } */
-    
     private class WaitMessageAndReplyBehaviour extends SimpleBehaviour{
 
         private boolean finished = false;
@@ -97,7 +68,7 @@ public class AgenteRio extends Agent
         @Override
         public void action() {
             try{ 
-                ACLMessage msg = blockingReceive();
+                ACLMessage msg = receive();
                 if(msg != null){
                     switch(msg.getPerformative()){
                         case ACLMessage.REQUEST:
@@ -126,9 +97,6 @@ public class AgenteRio extends Agent
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
                                     send(reply);
                                 }
-                                
-                               
-
                             }
                             break;
                         default:
@@ -142,7 +110,7 @@ public class AgenteRio extends Agent
             catch (Exception e){
                 e.printStackTrace();
             }
-            
+           // block();
         }
 
         @Override

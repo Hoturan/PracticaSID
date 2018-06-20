@@ -162,7 +162,7 @@ public class AgenteIndustria extends Agent{
               
         
         public void procesaAgua() {
-            if (lWater > 250000 && lWaste < (tankCapacity-250000)){
+            if (lWater >= 250000 && lWaste <= (tankCapacity-250000)){
                 lWater -= 250000;
                 lWaste += 250000;
                 earnings += earningsPerProcess;
@@ -178,11 +178,13 @@ public class AgenteIndustria extends Agent{
             else if (lWaste > (tankCapacity-250000)){
                 System.out.println("Stopping production, no more capacity for Waste");
             }
-            else{
+            else if (lWater <= tankCapacity - 1000000){
                 extractCleanWater();
             }
+             
+            double wasteWaterLoad = (double) lWaste / (double) tankCapacity;
             
-            if (lWaste/tankCapacity > 0.75){
+            if (wasteWaterLoad > 0.75){
                 if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");
                 if (!pouringWater){
                    for (int i = 0; i < AIDsDepuradoras.size() && lWaste > tankCapacity - 250000; ++i){

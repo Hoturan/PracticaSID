@@ -15,6 +15,14 @@ public class Rio{
         }
     }
 
+    private void muestraRio(){
+        String river = "";
+        for(int i = 0; i<flow.length; ++i){
+            river += String.valueOf(flow[i].getVolumen());
+        }
+        System.out.println("ESTADO DEL RIO: \n " + river + "\n");
+    }
+    
     // avanza todas las masas de agua del rio 1 posicion
     public void avanzarCurso(){
            for(int i = flow.length-1; i>0; --i){
@@ -24,6 +32,7 @@ public class Rio{
             }
             MasaDeAgua mNew = new MasaDeAgua();
             flow[0]= mNew; // al rio siempre le llega agua limpia*/
+            muestraRio();
     }
 
 
@@ -50,5 +59,5 @@ public class Rio{
             MasaDeAgua mtemp = flow[index];
             mtemp.mezclaMasasDeAgua(masaDescarga);
             flow[index] = mtemp;
-        }
+    }
 }
