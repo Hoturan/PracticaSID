@@ -14,6 +14,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREResponder;
 import jade.util.Logger;
+import jade.core.AID;
 
 
 import ontology.Rio;
@@ -22,6 +23,7 @@ import ontology.Rio;
 public class AgenteRio extends Agent
 {
     
+    private boolean rioIniciado = false;
     private Rio rioBesos;
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
@@ -38,7 +40,9 @@ public class AgenteRio extends Agent
         {
             this.message = "Agent " + myAgent +" with RioTickerBehaviour in action!!" + count_chocula;
             count_chocula = 0;
+            System.out.println("--------------------- INICIAMOS RIO ----------------------");
             rioBesos = new Rio(10); // rio de 10 tramos
+            rioIniciado = true;
         }
  
         public int onEnd()
@@ -52,7 +56,7 @@ public class AgenteRio extends Agent
         }
         
         public void avanzaCursoAgua() {
-            System.out.println("Agua avanza curso (No implementado)");
+            System.out.println("Agua avanza curso");
             rioBesos.avanzarCurso();
         }      
  
@@ -96,7 +100,35 @@ public class AgenteRio extends Agent
                 if(msg != null){
                     switch(msg.getPerformative()){
                         case ACLMessage.REQUEST:
-                            System.out.println("AgenteRio hs received the following message: " + msg);
+                            String content = msg.getContent();
+                            System.out.println("AgenteRio has received the following message: " + content);
+                            AID sender = msg.getSender();
+                            System.out.println("The message was sent by: " + sender.getLocalName());
+                            if(sender.getLocalName().equals("AgenteIndustria")){
+                                System.out.println("Rio is sending reply to AgenteIndustria");
+                                
+                                if(rioIniciado){
+                                    ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+                                    reply.addReceiver(sender);
+                                    int msgLength = content.length();
+                                    int posicionIndustria = Integer.parseInt(content.substring(msgLength-1));
+                                    int litrosExtraidos = rioBesos.extraerAgua(posicionIndustria, 1);
+                                    reply.setContent("Se han podido extraer (Millones de litros): " + String.valueOf(litrosExtraidos));
+                                    reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                                    send(reply);
+                                }
+                                else {
+                                    System.out.println("EL RIO AUN NO ESTA INICIADO!");
+                                    ACLMessage reply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+                                    reply.setContent("No se ha podido extraer agua del rio");
+                                    reply.addReceiver(sender);
+                                    reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
+                                    send(reply);
+                                }
+                                
+                               
+
+                            }
                             break;
                         default:
                             System.out.println("MALFORMED MESSAGE");

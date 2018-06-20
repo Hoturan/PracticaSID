@@ -96,14 +96,14 @@ public class AgenteDepuradora extends Agent {
         
         private void pourCleanWater(){
             if (debug) System.out.println("Pouring clean water to " + this.getAgent().getName());
-            if (!pouringWater && false){
+            if (!pouringWater){
                 if (debug) System.out.println("Going to pour clean water to the River");
                 ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
                 request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
                 request.addReceiver(AIDrio);
                 request.setContent("Pour Water");
                 pouringWater = true;
-                myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
+               /* myAgent.addBehaviour( new  AchieveREInitiator(myAgent,  request)  {      
                     @Override
                     protected  void  handleInform(ACLMessage  inform)  {   
                         System.out.println("Protocol  finished. Received  the  following  message:  "+inform); 
@@ -117,7 +117,7 @@ public class AgenteDepuradora extends Agent {
                         System.out.println("Protocol  finished. No more water left in this section of the river");
                         pouringWater = false;
                     }
-                });
+                });*/
             }
                       
         }
