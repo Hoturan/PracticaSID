@@ -135,10 +135,12 @@ public class AgenteRio extends Agent
                             break;
                     }
                 }
+                
             }
             catch (Exception e){
                 e.printStackTrace();
             }
+            block();
         }
 
         @Override

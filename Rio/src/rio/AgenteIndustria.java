@@ -133,7 +133,7 @@ public class AgenteIndustria extends Agent{
                                 break;
                         }
                     }
-                    block();
+                    block();                  
                 }
 
                 @Override
@@ -295,6 +295,7 @@ public class AgenteIndustria extends Agent{
             }
             
             if (!minADepuradora || !minARio) System.out.println(message);
+            block();
         }
  
     }

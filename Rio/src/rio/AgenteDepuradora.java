@@ -357,7 +357,7 @@ public class AgenteDepuradora extends Agent {
                 doDelete();
             }
           
-          
+          block();
         }
  
     }
@@ -390,6 +390,7 @@ public class AgenteDepuradora extends Agent {
                     return  informDone;  
                 }    
             });
+            block();
         }
     } 
     
