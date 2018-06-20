@@ -140,7 +140,7 @@ public class AgenteRio extends Agent
                 e.printStackTrace();
             }
         }
-        
+
         @Override
         public boolean done() {
             return finished;
@@ -149,9 +149,8 @@ public class AgenteRio extends Agent
     }
     
     protected void setup()
-    {
-        
-        
+    {   
+        this.setQueueSize(5);
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
         sd.setType("AgenteRio"); 
@@ -162,16 +161,14 @@ public class AgenteRio extends Agent
 
         try {
             DFService.register(this,dfd);
+            RioTickerBehaviour b = new RioTickerBehaviour(this, 10000);
+            this.addBehaviour(b);
             WaitMessageAndReplyBehaviour RioMessageBehaviour = new  WaitMessageAndReplyBehaviour(this);
             this.addBehaviour(RioMessageBehaviour);
         } catch (FIPAException e) {
             myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Cannot register with DF", e);
             doDelete();
-        }
-        
-        RioTickerBehaviour b = new RioTickerBehaviour(this, 10000);
-        this.addBehaviour(b);
-        
+        }      
         
     }
 }

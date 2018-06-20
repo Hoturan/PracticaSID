@@ -302,6 +302,7 @@ public class AgenteIndustria extends Agent{
     
     protected void setup()
     {
+        this.setQueueSize(5);
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
         sd.setType("AgenteIndustria"); 
@@ -310,17 +311,19 @@ public class AgenteIndustria extends Agent{
         dfd.addServices(sd);
         
         try {
+            IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, 5000);
+            this.addBehaviour(Ib);
+        
+            SearchDepuradoraAndRioOneShotBehaviour sD = new SearchDepuradoraAndRioOneShotBehaviour();
+            this.addBehaviour(sD);
+            
             DFService.register(this,dfd);
         } catch (FIPAException e) {
             myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Cannot register with DF", e);
             doDelete();
         }
         
-        IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, 5000);
-        this.addBehaviour(Ib);
         
-        SearchDepuradoraAndRioOneShotBehaviour sD = new SearchDepuradoraAndRioOneShotBehaviour();
-        this.addBehaviour(sD);
                 
         System.out.println("Agent "+getLocalName()+" waiting for CFP...");
         MessageTemplate template = MessageTemplate.and(

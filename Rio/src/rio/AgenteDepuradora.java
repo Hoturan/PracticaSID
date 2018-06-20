@@ -95,7 +95,7 @@ public class AgenteDepuradora extends Agent {
         }
         
         private void pourCleanWater(){
-            if (debug) System.out.println("Pouring clean water to " + this.getAgent().getName());
+            if (debug) System.out.println("Pouring clean water to " + AIDrio);
             if (!pouringWater){
                 if (debug) System.out.println("Going to pour clean water to the River");
                 ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
@@ -396,6 +396,7 @@ public class AgenteDepuradora extends Agent {
     @Override
     protected void setup()
     {
+        this.setQueueSize(5);
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
         sd.setType("AgenteDepuradora"); 
@@ -403,23 +404,23 @@ public class AgenteDepuradora extends Agent {
         dfd.setName(getAID());
         dfd.addServices(sd);
         
-     
-        AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new  AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
-        this.addBehaviour(RioMessageBehaviour);
-       
-        
         try {
+            SearchIndustriaAndRioOneShotBehaviour b = new SearchIndustriaAndRioOneShotBehaviour();
+            this.addBehaviour(b); 
+        
+            DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 3000);
+            this.addBehaviour(dT);
+        
+            AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new  AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
+            this.addBehaviour(RioMessageBehaviour);
             DFService.register(this,dfd);
-        } catch (FIPAException e) {
+        } 
+        catch (FIPAException e) {
             myLogger.log(Logger.SEVERE, "Agent " + getLocalName()+ " - Cannot register with DF", e);
             doDelete();
         }
         
-        SearchIndustriaAndRioOneShotBehaviour b = new SearchIndustriaAndRioOneShotBehaviour();
-        this.addBehaviour(b); 
         
-        DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 3000);
-        this.addBehaviour(dT);
         //Object[] args = getArguments();
   	//if (args != null && args.length > 0) {
             //nResponders = args.length;
