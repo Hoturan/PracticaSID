@@ -50,7 +50,8 @@ public class AgenteRio extends Agent
         }
         
         public void onTick(){
-            rioBesos.avanzarCurso();
+            String waterToSea = rioBesos.avanzarCurso();
+            System.out.println(msgManager.finalRio(waterToSea.split("\\s+")) + "\n");
         }
     
     }
@@ -85,7 +86,7 @@ public class AgenteRio extends Agent
                                     int tramoIndustria = msgManager.getTramo(words);
                                     int indiceIndustria = msgManager.getIndice(words);
                                     int litrosExtraidos = rioBesos.extraerAgua(tramoIndustria, 1000000);
-                                    String replyMsg = msgManager.extraerAguaReply(indiceIndustria, litrosExtraidos);
+                                    String replyMsg = msgManager.extraerAguaReply(sender.getLocalName(), litrosExtraidos);
                                     reply.setContent(replyMsg);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
                                     reply.setConversationId("others");

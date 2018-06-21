@@ -75,11 +75,11 @@ public class AgenteDepuradora extends Agent {
                                     if(depuradora.getTankCapacity() - (depuradora.getlWaste() + litrosRecibidos) > 0){
                                         // si la depuradora puede almacenar toda el agua recibida:
                                         depuradora.setlWaste(depuradora.getlWaste() + litrosRecibidos);
-                                        send = msgManager.aguaAlmacenada(litrosRecibidos);
+                                        send = msgManager.aguaAlmacenada(sender.getLocalName(), litrosRecibidos);
                                     }
                                     else{
                                         int volumeLeft = depuradora.getTankCapacity() - depuradora.getlWaste();
-                                        send = msgManager.aguaAlmacenada(volumeLeft);
+                                        send = msgManager.aguaAlmacenada(sender.getLocalName(), volumeLeft);
                                         depuradora.setlWaste(depuradora.getlWaste() + volumeLeft);
                                     }
                                     reply.setConversationId("others");
@@ -306,8 +306,7 @@ public class AgenteDepuradora extends Agent {
                 
             }
             else depuradora.setTicksLeft(depuradora.getTicksLeft() - 1);
-            
-            
+     
         }
         
         private void askForWaste(){
