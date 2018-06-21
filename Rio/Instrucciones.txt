@@ -1,0 +1,20 @@
+
+El ejecutable Rio.jar se encuentra dentro de Rio/dist
+
+Se ejecuta como:
+java -jar Rio.jar -gui "AgenteRio:rio.AgenteRio;AgenteIndustria:rio.AgenteIndustria(1000000,4,250000);AgenteDepuradora:rio.AgenteDepuradora"
+
+
+AgenteIndustria puede recibir tres parámetros:
+	- Capacidad del tanque
+	- Tramo del rio
+	- Agua usada por processo
+
+AgenteDepuradora puede recibir dos parámetros:
+	- Capacidad del tanque
+	- Tramo del rio
+
+AgenteRio puede recibir un parámetro:
+	- Números de tramos del rio
+
+Si no se especifican uno de los paráetros o se ponen demasiados se cojen valores por defecto

@@ -202,10 +202,9 @@ public class AgenteDepuradora extends Agent {
             depuradora = new Depuradora();
             
             Object[] args = getArguments();
-            if (args != null && args.length == 3){
+            if (args != null && args.length == 2){
                 depuradora.setTankCapacity(Integer.valueOf(args[0].toString()));       
                 depuradora.setPosition(Integer.valueOf(args[1].toString()));             
-                depuradora.setTicksPerProcess(Integer.valueOf(args[2].toString()));  
                 System.out.println("Parametros de " + myAgent.getAID().getLocalName());
             }
             else{
@@ -218,7 +217,6 @@ public class AgenteDepuradora extends Agent {
             
             System.out.println("    Capacidad del tanque ---> " + depuradora.getTankCapacity() + "L");
             System.out.println("    Tramo de la Indunstria ---> " + depuradora.getPosition());
-            System.out.println("    Ticks por processo ---> " + depuradora.getTicksPerProcess() + "L");
             System.out.println("-------------------------------------------------------");
             
             this.message = "Agent " + myAgent +" with DepuradoraTickerBehaviour in action!!" + count_chocula;
