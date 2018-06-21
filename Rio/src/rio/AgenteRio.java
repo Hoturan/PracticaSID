@@ -79,7 +79,7 @@ public class AgenteRio extends Agent
                             if(sender.getLocalName().equals("AgenteIndustria")){
                                 
                                 System.out.println("Rio is sending reply to AgenteIndustria");
-                                
+                                //hola
                                 if(rioIniciado){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
