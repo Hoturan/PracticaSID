@@ -76,7 +76,7 @@ public class AgenteRio extends Agent
                             System.out.println("AgenteRio has received the following message: " + content);
                             AID sender = msg.getSender();
                             System.out.println("The message was sent by: " + sender.getLocalName());
-                            if(sender.getLocalName().equals("AgenteIndustria")){
+                            if(sender.getLocalName().contains("AgenteIndustria")){
                                 
                                 System.out.println("Rio is sending reply to AgenteIndustria");
                                 //hola
@@ -134,7 +134,7 @@ public class AgenteRio extends Agent
                             System.out.println("AgenteRio has received the following message: " + content2);
                             AID sender2 = msg.getSender();
                             System.out.println("The message was sent by: " + sender2.getLocalName());
-                            if(sender2.getLocalName().equals("AgenteIndustria")){
+                            if(sender2.getLocalName().contains("AgenteIndustria")){
                                 int tramo = msgManager.getTramo(words2);
                                 int litrosDescargados = msgManager.getLitros(words2);
                                 int gradoContaminacion = msgManager.getGradoContaminacion(words2);

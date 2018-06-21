@@ -102,15 +102,9 @@ public class AgenteDepuradora extends Agent {
                                 break;
                         case ACLMessage.INFORM:
                             if (msg.getSender().equals(bestOffer)){
-                                // Purchase successful. We can terminate
+                                // success. We can terminate
                                 System.out.println("lWaste successfully accuired from agent "+msg.getSender().getName());
                                 System.out.println("Liters = "+ mostWaste);
-                                
-                                MasaDeAgua mtemp = new MasaDeAgua();
-                                mtemp.setVolumen(amountL);
-                                mtemp.contaminaAgua(mostGradoContaminacion);
-                                
-                                if(amountL > 0) depuradora.addFilthyWater(mtemp);
                             }
                             else{
                                 content = msg.getContent();

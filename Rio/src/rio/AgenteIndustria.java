@@ -187,7 +187,10 @@ public class AgenteIndustria extends Agent{
             industria.setLitersPerProcess(litersPerProcess);
             industria.setPosition(posicion);
             industria.setEarningsPerProcess(500);
-          
+            
+            ///// INICIAMOS LA INDUSTRIA CON AGUA:  --- ESTO NO SE DEBE HACER ---
+            ///// industria.addCleanWater(1000000);
+            /////////////////////////////////////////////////////////////////////
         }
         
         public IndustriaTickerBehaviour(Agent a, long period) {
