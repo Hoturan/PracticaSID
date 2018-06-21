@@ -63,15 +63,22 @@ public class AgenteDepuradora extends Agent {
                           case ACLMessage.REQUEST:
                                 String content = msg.getContent();
                                 String[] words = content.split("\\s+");
-                                System.out.println("AgenteDepuradora has received the following message: " + content);
                                 AID sender = msg.getSender();
-                                System.out.println("The message was sent by: " + sender.getLocalName());
+                                if (debug){
+                                    System.out.println("AgenteDepuradora has received the following message: " + content);
+                                    System.out.println("The message was sent by: " + sender.getLocalName());
+
+                                }
+                                
                                 if(sender.getLocalName().contains("AgenteIndustria")){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); // no se si es necesario
                                     String send;
-                                    System.out.println("Depuradora is replying to " + sender.getLocalName());
+                                    if (debug){
+                                        System.out.println("Depuradora is replying to " + sender.getLocalName());
+
+                                    }
                                     int litrosRecibidos = msgManager.getLitros(words);
                                     int gradoContaminacion = msgManager.getGradoContaminacion(words);
                                     MasaDeAgua mtemp = new MasaDeAgua();
@@ -108,13 +115,18 @@ public class AgenteDepuradora extends Agent {
                             else{
                                 content = msg.getContent();
                                 String[] word = content.split("\\s+");
-                                System.out.println("AgenteDepuradora has received the following message: " + content);
+                                if (debug){
+                                   System.out.println("AgenteDepuradora has received the following message: " + content);
+                                 }
                                 int litrosDescargados = msgManager.getLitros(word);
                                 depuradora.descargaAgua(litrosDescargados);     
                             }
                             break;
                         case ACLMessage.REJECT_PROPOSAL:
-                            System.out.println("Depuradora no puede descargar agua al rio");
+                            if (msg.getSender().equals(bestOffer)){
+                                System.out.println("A la industria" + msg.getSender() + "no le queda waste");
+                            }
+                            else System.out.println("Depuradora no puede descargar agua al rio");
                             break;
                         case ACLMessage.PROPOSE:
                             String msgContent  = msg.getContent();
@@ -210,7 +222,7 @@ public class AgenteDepuradora extends Agent {
         }
         
         private void pourCleanWater(){
-            if (debug) System.out.println("Pouring clean water to " + AIDrio.getLocalName());
+            System.out.println("Pouring clean water to " + AIDrio.getLocalName());
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
@@ -235,10 +247,8 @@ public class AgenteDepuradora extends Agent {
                 else{
                     pourCleanWater();
                     askedOnce = false;
-                    if (debug){
-                        System.out.println("Depuradora Process Done");    
-                        System.out.println("    Waste Tank at: " + depuradora.getWaterAmount() + "\n");
-                    }
+                    System.out.println("Depuradora Process Done");    
+                    System.out.println("    Waste Tank at: " + depuradora.getWaterAmount() + "\n");
                 }
                  if (pourSuccessful){  
                     askedOnce = false;
@@ -338,9 +348,9 @@ public class AgenteDepuradora extends Agent {
                 for (int i = 0; i < aux.length; ++i){
                     if (debug){
                       System.out.println(myAgent.getAID().getName() + " is adding Industria with AID: " + aux[i]);
-                    
+                    }
                     AIDsIndustrias.add(aux[i]);
-                    }                 
+                                     
                 }
             }
             

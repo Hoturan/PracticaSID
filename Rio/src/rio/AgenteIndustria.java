@@ -101,7 +101,7 @@ public class AgenteIndustria extends Agent{
                                 System.out.println(myAgent.getLocalName() + " no puede realizar la accion deseada");
                                 break;                            
                             default:
-                                System.out.println("INDUSTRIA MALFORMED MESSAGE");
+                                System.out.println("Oops, algo ha ido mal! - Mensaje malformado");
                                 break;
                         }
                 }
@@ -132,8 +132,7 @@ public class AgenteIndustria extends Agent{
 
                                 // The requested book is available for sale. Reply with the price
                                 reply.setContent(String.valueOf(waste) + " " + String.valueOf(industria.getGradoContaminacion()));
-                                reply.setContent(String.valueOf(waste));
-                                System.out.println("Offering " + waste + "L");
+                                if (debug) System.out.println("Offering " + waste + "L");
                                 reply.setConversationId("cfp");
 				myAgent.send(reply);
 			}
@@ -154,7 +153,7 @@ public class AgenteIndustria extends Agent{
 
                             industria.setlWaste(0);
                             reply.setPerformative(ACLMessage.INFORM);
-                            System.out.println(title+" given to agent "+msg.getSender().getName());
+                            if (debug) System.out.println(title+" given to agent "+msg.getSender().getName());
                             reply.setConversationId("cfp");
                             myAgent.send(reply);
 			}
@@ -177,13 +176,11 @@ public class AgenteIndustria extends Agent{
             int posicion = Integer.valueOf(args[1].toString());             
             int litersPerProcess = Integer.valueOf(args[2].toString());   
             
-            if (debug) {
-                System.out.println("Parametros de " + myAgent.getAID().getLocalName());
-                System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
-                System.out.println("    Tramo de la Indunstria ---> " + posicion);
-                System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
-                System.out.println("-------------------------------------------------------");
-            }
+            System.out.println("Parametros de " + myAgent.getAID().getLocalName());
+            System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
+            System.out.println("    Tramo de la Indunstria ---> " + posicion);
+            System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
+            System.out.println("-------------------------------------------------------");
             
             industria = new Industria();
             industria.setTankCapacity(tankCapacity);
@@ -208,10 +205,8 @@ public class AgenteIndustria extends Agent{
         }
 
         private void extractCleanWater(){
-            if (debug) {
-                System.out.println("Not enough clean water in Industria " + this.getAgent().getName());
-                System.out.println("Going to extract more");
-            }
+            System.out.println("Not enough clean water in Industria " + this.getAgent().getName());
+            
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
@@ -231,12 +226,11 @@ public class AgenteIndustria extends Agent{
                 industria.processWater();
                 industria.generateEarnings();
 
-                if(debug){
-                    System.out.println("Industria " + myAgent.getAID().getLocalName() + " Process Done: ");
-                    System.out.println("    Clean water Tank at: " + industria.getlWater() + "L");
-                    System.out.println("    Waste Tank at: " + industria.getlWaste() + "L");
-                    System.out.println("    Earnings at: " + industria.getEarnings() + " euros\n");
-                }
+                System.out.println("Industria " + myAgent.getAID().getLocalName() + " Process Done: ");
+                System.out.println("    Clean water Tank at: " + industria.getlWater() + "L");
+                System.out.println("    Waste Tank at: " + industria.getlWaste() + "L");
+                System.out.println("    Earnings at: " + industria.getEarnings() + " euros\n");
+                
             }
             else if (industria.getlWaste() > (industria.getTankCapacity() - litersPerProcess)){
                 System.out.println("Stopping production, no more capacity for Waste");
@@ -248,7 +242,7 @@ public class AgenteIndustria extends Agent{
             double wasteWaterLoad = (double) industria.getlWaste() / (double) industria.getTankCapacity();
 
             if (wasteWaterLoad > 0.75){
-                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
+                System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
                 ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
                 request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
                 String content = msgManager.enviaAgua(myAgent.getLocalName(), industria.getlWaste(), industria.getGradoContaminacion());
