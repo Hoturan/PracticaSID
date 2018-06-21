@@ -37,7 +37,7 @@ public class AgenteIndustria extends Agent{
     private boolean debug = true;
     //-gui AgenteRio:rio.AgenteRio;AgenteIndustria:rio.AgenteIndustria(500000,4,100000);AgenteDepuradora:rio.AgenteDepuradora
     //-gui AgenteRio:rio.AgenteRio;AgenteIndustria:rio.AgenteIndustria(1000000,4,250000);AgenteDepuradora:rio.AgenteDepuradora
-    private int secondsPerTick = 5;
+    private int secondsPerTick = 3;
     private Industria industria;
     private MessageManager msgManager;
     private int identificador = 9156;
@@ -127,17 +127,27 @@ public class AgenteIndustria extends Agent{
 			if (msg != null && ACLMessage.CFP == msg.getPerformative() && industria != null) {
 				// CFP Message received. Process it
                                 System.out.println(myAgent.getAID().getLocalName() + " has recieved a petiton for waste");
-				String title = msg.getContent();
-				ACLMessage reply = new  ACLMessage(ACLMessage.PROPOSE);
-                                reply.addReceiver(AIDDepuradora);
+				
+                                
+                                int waste = industria.getlWaste();
+                                if (waste > 0){
+                                    ACLMessage reply = new  ACLMessage(ACLMessage.PROPOSE);
+                                    reply.addReceiver(AIDDepuradora);
 
-				int waste = industria.getlWaste();
-
-                                // The requested book is available for sale. Reply with the price
-                                reply.setContent(String.valueOf(waste) + " " + String.valueOf(industria.getGradoContaminacion()));
-                                if (debug) System.out.println("Offering " + waste + "L");
-                                reply.setConversationId("cfp");
-				myAgent.send(reply);
+                                    // The requested book is available for sale. Reply with the price
+                                    reply.setContent(String.valueOf(waste) + " " + String.valueOf(industria.getGradoContaminacion()));
+                                    if (debug) System.out.println("Offering " + waste + "L");
+                                    reply.setConversationId("cfp");
+                                    myAgent.send(reply);
+                                }
+                                else {
+                                    ACLMessage reply = new  ACLMessage(ACLMessage.REFUSE);
+                                    reply.addReceiver(AIDDepuradora);
+                                    reply.setConversationId("cfp");
+                                    myAgent.send(reply);
+                                    if (debug) System.out.println("No more waste left in: " + myAgent.getLocalName());
+                                }
+				
 			}
 			else {
 				block();

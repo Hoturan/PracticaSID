@@ -24,7 +24,7 @@ public class AgenteRio extends Agent
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
     private MessageManager msgManager;
     private int numberTramos = 10;
-
+    private final boolean debug = false;
     private class RioTickerBehaviour extends TickerBehaviour {
         String message;
         int count_chocula;
@@ -81,12 +81,12 @@ public class AgenteRio extends Agent
                         case ACLMessage.REQUEST:
                             String content = msg.getContent();
                             String[] words = content.split("\\s+");
-                            System.out.println("AgenteRio has received the following message: " + content);
+                            if (debug) System.out.println("AgenteRio has received the following message: " + content);
                             AID sender = msg.getSender();
-                            System.out.println("The message was sent by: " + sender.getLocalName());
+                            if (debug) System.out.println("The message was sent by: " + sender.getLocalName());
                             if(sender.getLocalName().contains("AgenteIndustria")){
                                 
-                                System.out.println("Rio is sending reply to AgenteIndustria");
+                                if (debug) System.out.println("Rio is sending reply to AgenteIndustria");
                                 //hola
                                 if(rioIniciado){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
@@ -111,7 +111,7 @@ public class AgenteRio extends Agent
                                 }
                             }
                             else if(sender.getLocalName().equals("AgenteDepuradora")){
-                                System.out.println("Rio is sending reply to AgenteDepuradora");
+                                if (debug) System.out.println("Rio is sending reply to AgenteDepuradora");
                                 if(rioIniciado){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
@@ -139,9 +139,9 @@ public class AgenteRio extends Agent
                         case ACLMessage.INFORM:
                             String content2 = msg.getContent();
                             String[] words2 = content2.split("\\s+");
-                            System.out.println("AgenteRio has received the following message: " + content2);
+                            if (debug) System.out.println("AgenteRio has received the following message: " + content2);
                             AID sender2 = msg.getSender();
-                            System.out.println("The message was sent by: " + sender2.getLocalName());
+                            if (debug) System.out.println("The message was sent by: " + sender2.getLocalName());
                             if(sender2.getLocalName().contains("AgenteIndustria")){
                                 int tramo = msgManager.getTramo(words2);
                                 int litrosDescargados = msgManager.getLitros(words2);

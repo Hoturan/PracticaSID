@@ -46,6 +46,7 @@ public class AgenteDepuradora extends Agent {
     private AID AIDrio;
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
 
+    private int ticksToAsk = 0;
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
         private boolean finished = false;
@@ -55,6 +56,7 @@ public class AgenteDepuradora extends Agent {
         private int mostGradoContaminacion = 0;
         private int replyNumber = 0;
         private int amountL = 0;
+        
         @Override
             public void action() {
                 ACLMessage msg = myAgent.receive();
@@ -116,11 +118,8 @@ public class AgenteDepuradora extends Agent {
                                 depuradora.descargaAgua(litrosDescargados);     
                             }
                             break;
-                        case ACLMessage.REJECT_PROPOSAL:
-                            if (msg.getSender().equals(bestOffer)){
-                                System.out.println("A la industria" + msg.getSender() + "no le queda waste");
-                            }
-                            else System.out.println("Depuradora no puede descargar agua al rio");
+                        case ACLMessage.REJECT_PROPOSAL: 
+                            System.out.println("Depuradora no puede descargar agua al rio");
                             break;
                         case ACLMessage.PROPOSE:
                             String msgContent  = msg.getContent();
@@ -162,6 +161,11 @@ public class AgenteDepuradora extends Agent {
                                 
                                 if(amountL > 0) depuradora.addFilthyWater(mtemp);
                                 step = 1;
+                            }
+                            break;
+                        case ACLMessage.REFUSE:
+                            if (msg.getSender().equals(bestOffer)){
+                                System.out.println("A la industria" + msg.getSender() + "no le queda waste");
                             }
                             break;
                         default:
@@ -250,10 +254,11 @@ public class AgenteDepuradora extends Agent {
                 
                 if (depuradora.getWaterAmount() == 0){
                     System.out.println("Depuradora has no waste to clean!!!");
-                    if (!askedOnce){
-                        askedOnce = true;
+                    if (ticksToAsk == 0){
+                        ticksToAsk = 2; 
                         askForWaste();
                     }
+                    else --ticksToAsk;
                 }
                 else{
                     pourCleanWater();
@@ -421,7 +426,7 @@ public class AgenteDepuradora extends Agent {
             MessageRecieverBehaviour mR = new MessageRecieverBehaviour();
             this.addBehaviour(mR); 
         
-            DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 3000);
+            DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 5000);
             this.addBehaviour(dT);
             
             DFService.register(this,dfd);
