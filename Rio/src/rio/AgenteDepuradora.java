@@ -2,6 +2,7 @@ package rio;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
@@ -12,6 +13,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import jade.proto.ContractNetInitiator;
 import jade.util.Logger;
 import java.util.ArrayList;
@@ -34,14 +36,194 @@ public class AgenteDepuradora extends Agent {
     
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
+    private MessageTemplate mt;
     
     String message="Have not River";
 
-   private int nResponders;
+    private int nResponders = 0;
  
     private AID AIDrio;
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
+
     
+    private class MessageRecieverBehaviour extends SimpleBehaviour{
+        private boolean finished = false;
+        private int step = 1;
+        private AID bestOffer;
+        private int mostWaste = 0;
+        private int replyNumber = 0;
+        private int amountL = 0;
+        @Override
+            public void action() {
+                ACLMessage msg = myAgent.receive();
+                if(msg != null){
+                      switch(msg.getPerformative()){
+                          case ACLMessage.REQUEST:
+                                String content = msg.getContent();
+                                String[] words = content.split("\\s+");
+                                System.out.println("AgenteDepuradora has received the following message: " + content);
+                                AID sender = msg.getSender();
+                                System.out.println("The message was sent by: " + sender.getLocalName());
+                                if(sender.getLocalName().equals("AgenteIndustria")){
+                                    ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+                                    reply.addReceiver(sender);
+                                    reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); // no se si es necesario
+                                    String send;
+                                    System.out.println("Depuradora is replying to AgenteIndustria");
+                                    int litrosRecibidos = msgManager.getLitros(words);
+                                    //int indiceIndustria = msgManager.getIndice(words);
+                                    if(depuradora.getTankCapacity() - (depuradora.getlWaste() + litrosRecibidos) > 0){
+                                        // si la depuradora puede almacenar toda el agua recibida:
+                                        depuradora.setlWaste(depuradora.getlWaste() + litrosRecibidos);
+                                        send = msgManager.aguaAlmacenada(litrosRecibidos);
+                                    }
+                                    else{
+                                        int volumeLeft = depuradora.getTankCapacity() - depuradora.getlWaste();
+                                        send = msgManager.aguaAlmacenada(volumeLeft);
+                                        depuradora.setlWaste(depuradora.getlWaste() + volumeLeft);
+                                    }
+                                    reply.setConversationId("others");
+                                    reply.setContent(send);
+                                    send(reply);
+                                }
+                                break;
+                        case ACLMessage.INFORM:
+                            if (msg.getSender().equals(bestOffer)){
+                                // Purchase successful. We can terminate
+                                System.out.println("lWaste successfully accuired from agent "+msg.getSender().getName());
+                                System.out.println("Liters = "+ mostWaste);
+                                depuradora.setlWaste(depuradora.getlWaste()+amountL);
+                            }
+                            else{
+                                content = msg.getContent();
+                                String[] word = content.split("\\s+");
+                                System.out.println("AgenteDepuradora has received the following message: " + content);
+                                int litrosDescargados = msgManager.getLitros(word);
+                                depuradora.setlWater(depuradora.getlWater() - litrosDescargados);        
+                            }
+                            break;
+                        case ACLMessage.REJECT_PROPOSAL:
+                            System.out.println("Depuradora no puede descargar agua al rio");
+                            break;
+                        case ACLMessage.PROPOSE:
+                            int waste = Integer.parseInt(msg.getContent());
+                            System.out.println("Propose " + waste+ "L recieved from " + msg.getSender().getLocalName());
+                            if (bestOffer == null || waste < mostWaste) {
+                                // This is the best offer at present
+                                mostWaste = waste;
+                                bestOffer = msg.getSender();
+                            }
+                            replyNumber++;
+                            if (replyNumber >= AIDsIndustrias.size()) {
+                                // We received all replies
+                                step = 2; 
+                            }
+                            if (step == 2){
+                                ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+                                order.addReceiver(bestOffer);
+                                amountL = (depuradora.getTankCapacity() - depuradora.getlWaste() + mostWaste);
+                                if (amountL < 0) amountL = mostWaste - amountL;
+                                else amountL = mostWaste;
+                                if (debug) System.out.println("Can handle " + amountL + "L");
+                                order.setContent(String.valueOf(amountL));
+                                order.setConversationId("cfp");
+                                order.setReplyWith("order"+System.currentTimeMillis());
+                                myAgent.send(order);
+                                // Prepare the template to get the purchase order reply
+                                mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cfp"),
+                                            MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+                                depuradora.setlWaste(mostWaste);
+                                step = 1;
+                            }
+                            break;
+                        default:
+                            System.out.println("MALFORMED MESSAGE");
+                            break;
+                        }  
+
+                }
+                else block();                  
+            }
+                   
+                @Override
+                public boolean done() {
+                    return finished;
+                }
+
+                
+    }
+    
+    private class RequestPerformer extends Behaviour {
+		private int step = 1;
+                private AID bestOffer;
+                private int mostWaste = 0;
+                private int replyNumber = 0;
+                
+
+                @Override
+		public void action() {
+			switch (step) {
+                            case 1:
+                                MessageTemplate mess = MessageTemplate.MatchConversationId("cfp");
+                                ACLMessage msg = myAgent.receive(mess);
+                                if (msg != null) {
+                                        System.out.println("GOT A MESSAGE!");
+                                        if (msg.getPerformative() == ACLMessage.PROPOSE){
+                                            // This is an offer 
+                                            int waste = Integer.parseInt(msg.getContent());
+                                            System.out.print("Propose " + waste+ "L recieved from " + msg.getSender().getLocalName());
+;                                           if (bestOffer == null || waste < mostWaste) {
+                                                // This is the best offer at present
+                                                mostWaste = waste;
+                                                bestOffer = msg.getSender();
+                                            }
+                                        }
+                                        replyNumber++;
+                                        if (replyNumber >= AIDsIndustrias.size()) {
+                                        // We received all replies
+                                        step = 2; 
+                                        }      
+                                }
+                                else block();
+                                break;
+
+                            case 2:
+                                ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+                                order.addReceiver(bestOffer);
+                                order.setContent("SYMBOLIC");
+                                order.setConversationId("cfp");
+                                order.setReplyWith("order"+System.currentTimeMillis());
+                                myAgent.send(order);
+                                // Prepare the template to get the purchase order reply
+                                mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cfp"),
+                                            MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+                                depuradora.setlWaste(mostWaste);
+                                step = 3;
+                                break;
+                            case 3:                             
+                                msg = myAgent.receive(mt);
+                                if (msg.getPerformative() == ACLMessage.INFORM) {
+                                        // Purchase successful. We can terminate
+                                        System.out.println("lWaste successfully accuired from agent "+msg.getSender().getName());
+                                        System.out.println("Liters = "+ mostWaste);
+
+                                }
+                                else {
+                                        System.out.println("Attempt failed");
+                                }
+
+                                step = 1;
+                            }
+                        }        
+
+                @Override
+		public boolean done() {
+			if (step == 2 && bestOffer == null) {
+				System.out.println("Attempt failed: No waste avaliable");
+			}
+			return ((step == 2 && bestOffer == null) || step == 4);
+		}
+	}  // End of inner class RequestPerformer
       
     private class DepuradoraTickerBehaviour extends TickerBehaviour    {
         String message;
@@ -84,45 +266,11 @@ public class AgenteDepuradora extends Agent {
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
+            request.setConversationId("others");
             String content = msgManager.descargarAgua(depuradora.getPosition(), depuradora.getlWater());
             request.setContent(content);
             send(request);
             
-            myAgent.addBehaviour(new SimpleBehaviour(){
-
-                private boolean finished = false;
-
-                @Override
-                public void action() {
-                    ACLMessage reply = receive();
-                    if(reply != null){
-                        switch(reply.getPerformative()){
-                            case ACLMessage.INFORM:
-                                String content = reply.getContent();
-                                String[] words = content.split("\\s+");
-                                System.out.println("AgenteDepuradora has received the following message: " + content);
-                                int litrosDescargados = msgManager.getLitros(words);
-                                depuradora.setlWater(depuradora.getlWater() - litrosDescargados);
-                                break;
-                            case ACLMessage.REJECT_PROPOSAL:
-                                System.out.println("Depuradora no puede descargar agua al rio");
-                                break;
-                            case ACLMessage.PROPOSE:
-                                System.out.println("Depuradora has recieved propose: " + reply.getContent());
-                                break;
-                            default:
-                                System.out.println("MALFORMED MESSAGE");
-                                break;
-                        }
-                    }
-                    else block();                  
-                }
-
-                @Override
-                public boolean done() {
-                    return finished;
-                }        
-            });
             pourSuccessful = true;
         }
         
@@ -167,93 +315,20 @@ public class AgenteDepuradora extends Agent {
             System.out.println("Asking for more waste to one of " + nResponders + " Industria responders.");
 
             // Fill the CFP message
-            ACLMessage msg = new ACLMessage(ACLMessage.CFP);
+            ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
             for (int i = 0; i < AIDsIndustrias.size(); ++i) {
-                msg.addReceiver(AIDsIndustrias.get(i));
-            }
-            msg.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-            // We want to receive a reply in 10 secs
-            msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
-            msg.setContent("perform-AIA-exam");
-            msg.setConversationId("cpf");
-            ContractNetInitiatorBehaviour cib = new ContractNetInitiatorBehaviour(myAgent, msg);
-            addBehaviour(cib);
+                    cfp.addReceiver(AIDsIndustrias.get(i));
+            } 
+            cfp.setContent("Need Waste");
+            cfp.setConversationId("cfp");
+            cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
+            mt = MessageTemplate.MatchConversationId("cpf");
+            myAgent.send(cfp);
             
         }
     }
     
-     private class ContractNetInitiatorBehaviour extends ContractNetInitiator
-         {
-             public ContractNetInitiatorBehaviour(Agent a, ACLMessage mt)
-            {
-                super(a,mt);
-            }
- 
-             protected void handlePropose(ACLMessage propose, Vector v)
-             {
-                System.out.println("Agent '"+propose.getSender().getName()+"' proposed '"+propose.getContent() + "'");
-             }
- 
-            protected void handleRefuse(ACLMessage refuse)
-            {
-                    System.out.println("Agent '"+refuse.getSender().getName()+"' refused");
-            }
- 
-            protected void handleFailure(ACLMessage failure)
-            {
-                    if (failure.getSender().equals(myAgent.getAMS())) {
-                            // FAILURE notification from the JADE runtime: the receiver
-                            // does not exist
-                            System.out.println("Responder does not exist");
-                    }
-                    else {
-                            System.out.println("Agent '"+failure.getSender().getName()+"' failed");
-                    }
-                    // Immediate failure --> we will not receive a response from this agent
-                    nResponders--;
-            }
- 
-             @Override
-            protected void handleAllResponses(Vector responses, Vector acceptances)
-            {
-                    if (responses.size() < nResponders) {
-                            // Some responder didn't reply within the specified timeout
-                            System.out.println("Timeout expired: missing "+(nResponders - responses.size())+" responses");
-                    }
-                    // Evaluate proposals.
-                    int bestProposal = -1;
-                    AID bestProposer = null;
-                    ACLMessage accept = null;
-                    Enumeration e = responses.elements();
-                    while (e.hasMoreElements()) {
-                            ACLMessage msg = (ACLMessage) e.nextElement();
-                            if (msg.getPerformative() == ACLMessage.PROPOSE) {
-                                    ACLMessage reply = msg.createReply();
-                                    reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
-                                    acceptances.addElement(reply);
-                                    int proposal = Integer.parseInt(msg.getContent());
-                                    if (proposal > bestProposal) {
-                                            bestProposal = proposal;
-                                            bestProposer = msg.getSender();
-                                            accept = reply;
-                                    }
-                            }
-                    }
-                    // Accept the proposal of the best proposer
-                    if (accept != null) {
-                            System.out.println("Accepting proposal '"+bestProposal+"' from responder '"+bestProposer.getName() + "'");
-                            accept.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-                    }
-            }
- 
-            protected void handleInform(ACLMessage inform)
-            {
-                    System.out.println("Agent '"+inform.getSender().getName()+"' successfully performed the requested action");
-            }
- 
-              
-         } 
-  
+     
     
     public class SearchIndustriaAndRioOneShotBehaviour extends OneShotBehaviour{
         public SearchIndustriaAndRioOneShotBehaviour()
@@ -357,62 +432,6 @@ public class AgenteDepuradora extends Agent {
  
     }
     
-    private class WaitMessageAndReplyBehaviour extends SimpleBehaviour {       
-
-        public WaitMessageAndReplyBehaviour(Agent a) {
-            super(a);
-        }
-        
-        private boolean finished = false;
-        
-        @Override
-        public void action() {
-            
-            ACLMessage request = receive();
-            if(request != null){
-                switch(request.getPerformative()){
-                    case ACLMessage.REQUEST:
-                        String content = request.getContent();
-                        String[] words = content.split("\\s+");
-                        System.out.println("AgenteDepuradora has received the following message: " + content);
-                        AID sender = request.getSender();
-                        System.out.println("The message was sent by: " + sender.getLocalName());
-                        if(sender.getLocalName().equals("AgenteIndustria")){
-                            ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
-                            reply.addReceiver(sender);
-                            reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); // no se si es necesario
-                            String msg;
-                            System.out.println("Depuradora is replying to AgenteIndustria");
-                            int litrosRecibidos = msgManager.getLitros(words);
-                            int indiceIndustria = msgManager.getIndice(words);
-                            if(depuradora.getTankCapacity() - (depuradora.getlWaste() + litrosRecibidos) > 0){
-                                // si la depuradora puede almacenar toda el agua recibida:
-                                depuradora.setlWaste(depuradora.getlWaste() + litrosRecibidos);
-                                msg = msgManager.aguaAlmacenada(indiceIndustria, litrosRecibidos);
-                            }
-                            else{
-                                int volumeLeft = depuradora.getTankCapacity() - depuradora.getlWaste();
-                                msg = msgManager.aguaAlmacenada(indiceIndustria, volumeLeft);
-                                depuradora.setlWaste(depuradora.getlWaste() + volumeLeft);
-                            }
-                            reply.setContent(msg);
-                            send(reply);
-                        }
-                        break;
-                    default:
-                        System.out.println("MALFORMED MESSAGE");
-                        break;
-                }
-                finished = true;
-            }
-            else block();
-        }
-
-        @Override
-        public boolean done() {
-            return finished;
-        }
-    } 
     
     @Override
     protected void setup()
@@ -427,13 +446,13 @@ public class AgenteDepuradora extends Agent {
         
         try {
             SearchIndustriaAndRioOneShotBehaviour b = new SearchIndustriaAndRioOneShotBehaviour();
-            this.addBehaviour(b); 
+            this.addBehaviour(b);
+            
+            MessageRecieverBehaviour mR = new MessageRecieverBehaviour();
+            this.addBehaviour(mR); 
         
             DepuradoraTickerBehaviour dT = new DepuradoraTickerBehaviour(this, 3000);
             this.addBehaviour(dT);
-        
-            AgenteDepuradora.WaitMessageAndReplyBehaviour RioMessageBehaviour = new AgenteDepuradora.WaitMessageAndReplyBehaviour(this);
-            this.addBehaviour(RioMessageBehaviour);
             
             DFService.register(this,dfd);
         } 

@@ -7,6 +7,7 @@ package rio;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
@@ -47,14 +48,16 @@ public class AgenteIndustria extends Agent{
     private boolean debug = true;
  
     private int secondsPerTick = 5;
-    private Industria[] industrias;
+    private Industria industria;
     private int numeroIndustrias;
     private MessageManager msgManager;
     
     String message="Have not found one of the two basic Agents";
     DFAgentDescription template = new DFAgentDescription();
     ServiceDescription templateSd = new ServiceDescription();
-        
+    
+    private MessageTemplate mt;     
+    
     protected String performs;
     protected int evaluation;
     
@@ -62,57 +65,46 @@ public class AgenteIndustria extends Agent{
     private AID AIDDepuradora;
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
            
-    ContractNetResponderBehaviour cN;
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
         private boolean finish = false;
         @Override
             public void action() {
-                ACLMessage reply = receive();
+                mt = MessageTemplate.MatchConversationId("others");
+                ACLMessage msg = myAgent.receive(mt);
                 //System.out.println("Industria espera contestacion de rio");
-                if(reply != null){
-                    switch(reply.getPerformative()){
-                        case ACLMessage.INFORM:
-                            String content = reply.getContent();
-                            String[] words = content.split("\\s+");
-                            System.out.println("AgenteIndustria has received the following message: " + content);
-                            int litros = msgManager.getLitros(words);
-                            int indiceIndustria = msgManager.getIndice(words);
-                            switch(reply.getSender().getLocalName()){
-                                case "AgenteRio":
-                                    industrias[indiceIndustria].setlWater(industrias[indiceIndustria].getlWater() + litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWater() + " litros de agua");
-                                    break;
-                                case "AgenteDepuradora":
-                                    industrias[indiceIndustria].setlWaste(industrias[indiceIndustria].getlWaste() - litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industrias[indiceIndustria].getlWaste() + " litros de agua sucia");
-                                    break;
-                                default:
-                                    System.out.println("Oops, algo ha ido mal!");
-                                    break;
-                            }
+                if(msg != null){                 
+                        switch(msg.getPerformative()){
+                            case ACLMessage.INFORM:
+                                String content = msg.getContent();
+                                String[] words = content.split("\\s+");
+                                System.out.println("AgenteIndustria has received the following message: " + content);
+                                int litros = msgManager.getLitros(words);
+                                int indiceIndustria = msgManager.getIndice(words);
+                                switch(msg.getSender().getLocalName()){
+                                    case "AgenteRio":
+                                        industria.setlWater(industria.getlWater() + litros);
+                                        System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWater() + " litros de agua");
+                                        break;
+                                    case "AgenteDepuradora":
+                                        industria.setlWaste(industria.getlWaste() - litros);
+                                        System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWaste() + " litros de agua sucia");
+                                        break;
+                                    default:
+                                        System.out.println("Oops, algo ha ido mal!");
+                                        break;
+                                }
 
-                            break;
-                        case ACLMessage.REJECT_PROPOSAL:
-                            System.out.println("AgenteIndustria no puede realizar la accion deseada");
-                            break;
-                        /*case ACLMessage.CFP:
-                            try{
-                                cN.prepareResponse(reply);
-
-                            }
-                            catch(NotUnderstoodException e){
-                                myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Did not understand", e);
-                            }
-                            catch(RefuseException e){
-                                myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Refused", e);
-                            }
-                            break;*/     
-                        default:
-                            System.out.println("MALFORMED MESSAGE");
-                            break;
-                    }
+                                break;
+                            case ACLMessage.REJECT_PROPOSAL:
+                                System.out.println("AgenteIndustria no puede realizar la accion deseada");
+                                break;                            
+                            default:
+                                System.out.println("INDUSTRIA MALFORMED MESSAGE");
+                                break;
+                        }
                 }
+                    
                 block();                  
             }     
 
@@ -123,6 +115,51 @@ public class AgenteIndustria extends Agent{
 
                 
     }
+    
+    private class OfferRequestsServer extends CyclicBehaviour {
+		public void action() { 
+			MessageTemplate mt = MessageTemplate.MatchConversationId("cfp");   
+			ACLMessage msg = myAgent.receive(mt);
+			if (msg != null && ACLMessage.CFP == msg.getPerformative()) {
+				// CFP Message received. Process it
+                                System.out.println(myAgent.getAID().getLocalName() + " has recieved a petiton for waste");
+				String title = msg.getContent();
+				ACLMessage reply = new  ACLMessage(ACLMessage.PROPOSE);
+                                reply.addReceiver(AIDDepuradora);
+
+				int waste = industria.getlWaste();
+                                // The requested book is available for sale. Reply with the price
+                                reply.setContent(String.valueOf(waste));
+                                System.out.println("Offering " + waste + "L");
+                                reply.setConversationId("cfp");
+				myAgent.send(reply);
+			}
+			else {
+				block();
+			}
+		}
+	}  
+
+	private class WasteOrdersServer extends CyclicBehaviour {
+		public void action() {
+			MessageTemplate mt = MessageTemplate.MatchConversationId("cfp");
+			ACLMessage msg = myAgent.receive(mt);
+			if (msg != null && ACLMessage.ACCEPT_PROPOSAL == msg.getPerformative()) {
+				// ACCEPT_PROPOSAL Message received. Process it
+				String title = msg.getContent();
+				ACLMessage reply = msg.createReply();
+
+				industria.setlWaste(0);
+                                reply.setPerformative(ACLMessage.INFORM);
+                                System.out.println(title+" given to agent "+msg.getSender().getName());
+                                reply.setConversationId("cfp");
+				myAgent.send(reply);
+			}
+			else {
+				block();
+			}
+		}
+        }
         
     private class IndustriaTickerBehaviour extends TickerBehaviour {
         String message;
@@ -133,33 +170,26 @@ public class AgenteIndustria extends Agent{
         public void onStart(){
             msgManager = new MessageManager();
             Object[] args = getArguments();
-            numeroIndustrias = Integer.valueOf(args[0].toString());
-            int tankCapacity = Integer.valueOf(args[1].toString());       
-            int posicion = Integer.valueOf(args[2].toString());             
-            int litersPerProcess = Integer.valueOf(args[3].toString());   
+            int tankCapacity = Integer.valueOf(args[0].toString());       
+            int posicion = Integer.valueOf(args[1].toString());             
+            int litersPerProcess = Integer.valueOf(args[2].toString());   
             
             if (debug) {
                 System.out.println("Parametros de " + myAgent.getAID().getLocalName());
-                System.out.println("    Numero de industrias ---> " + numeroIndustrias);
                 System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
                 System.out.println("    Tramo de la Indunstria ---> " + posicion);
                 System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
                 System.out.println("-------------------------------------------------------");
             }
             
-            industrias = new Industria[numeroIndustrias];
-            
-            for(int i = 0; i<numeroIndustrias; ++i){
-                industrias[i] = new Industria();
-                industrias[i].setTankCapacity(tankCapacity);
-                industrias[i].setLitersPerProcess(litersPerProcess);
-                industrias[i].setPosition(posicion);
-                industrias[i].setEarningsPerProcess(500);
-            }
+            industria = new Industria();
+            industria.setTankCapacity(tankCapacity);
+            industria.setLitersPerProcess(litersPerProcess);
+            industria.setPosition(posicion);
+            industria.setEarningsPerProcess(500);
 
            
         }
-
         
         public IndustriaTickerBehaviour(Agent a, long period) {
             super(a, period);
@@ -175,7 +205,7 @@ public class AgenteIndustria extends Agent{
             procesaAgua();
         }
 
-        private void extractCleanWater(int indiceIndustria){
+        private void extractCleanWater(){
             if (debug) {
                 System.out.println("Not enough clean water in Industria " + this.getAgent().getName());
                 System.out.println("Going to extract more");
@@ -183,55 +213,54 @@ public class AgenteIndustria extends Agent{
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST); 
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
-            String content = msgManager.extraerAgua(indiceIndustria, industrias[indiceIndustria].getPosition(), 1000000);
+            String content = msgManager.extraerAgua(industria.getPosition(), 1000000);
             request.setContent(content);
+            request.setConversationId("others");
             send(request);      
        
         }        
               
         
         public void procesaAgua() {
-           
-            for(int i = 0; i<numeroIndustrias; ++i){
                 
-                Industria ind = industrias[i];
-                int litersPerProcess = ind.getLitersPerProcess();
-                
-                if (ind.getlWater() >= litersPerProcess && ind.getlWaste() <= (ind.getTankCapacity() - litersPerProcess)){
-                    ind.setlWater(ind.getlWater() - litersPerProcess);
-                    ind.setlWaste(ind.getlWaste() + litersPerProcess);
-                    ind.generateEarnings();
+            Industria ind = industria;
+            int litersPerProcess = ind.getLitersPerProcess();
 
-                    if(debug){
-                        System.out.println("Industria " + i + " Process Done: ");
-                        System.out.println("    Clean water Tank at: " + ind.getlWater() + "L");
-                        System.out.println("    Waste Tank at: " + ind.getlWaste() + "L");
-                        System.out.println("    Earnings at: " + ind.getEarnings() + " euros\n");
-                    }
+            if (ind.getlWater() >= litersPerProcess && ind.getlWaste() <= (ind.getTankCapacity() - litersPerProcess)){
+                ind.setlWater(ind.getlWater() - litersPerProcess);
+                ind.setlWaste(ind.getlWaste() + litersPerProcess);
+                ind.generateEarnings();
 
-                }
-                else if (ind.getlWaste() > (ind.getTankCapacity() - litersPerProcess)){
-                    System.out.println("Stopping production, no more capacity for Waste");
-                }
-                else if (ind.getlWater() <= (ind.getTankCapacity() - 1000000)){
-                    extractCleanWater(i);
+                if(debug){
+                    System.out.println("Industria " + myAgent.getAID().getLocalName() + " Process Done: ");
+                    System.out.println("    Clean water Tank at: " + ind.getlWater() + "L");
+                    System.out.println("    Waste Tank at: " + ind.getlWaste() + "L");
+                    System.out.println("    Earnings at: " + ind.getEarnings() + " euros\n");
                 }
 
-                double wasteWaterLoad = (double) ind.getlWaste() / (double) ind.getTankCapacity();
-
-                if (wasteWaterLoad > 0.75){
-                    if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
-                    ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                    request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                    String content = msgManager.enviaAgua(i, ind.getlWaste());
-                    request.setContent(content);
-                    request.addReceiver(AIDDepuradora);
-                    send(request);
-            
-
-                }
             }
-        }      
+            else if (ind.getlWaste() > (ind.getTankCapacity() - litersPerProcess)){
+                System.out.println("Stopping production, no more capacity for Waste");
+            }
+            else if (ind.getlWater() <= (ind.getTankCapacity() - 1000000)){
+                extractCleanWater();
+            }
+
+            double wasteWaterLoad = (double) ind.getlWaste() / (double) ind.getTankCapacity();
+
+            if (wasteWaterLoad > 0.75){
+                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
+                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                String content = msgManager.enviaAgua(ind.getlWaste());
+                request.setContent(content);
+                request.addReceiver(AIDDepuradora);
+                request.setConversationId("others");
+                send(request);
+
+
+            }
+        }   
     }
     
     public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
@@ -341,45 +370,7 @@ public class AgenteIndustria extends Agent{
         }
     }
     
-    private class ContractNetResponderBehaviour extends ContractNetResponder
-    {
-                  
- 
-        public ContractNetResponderBehaviour(Agent a, MessageTemplate mt)
-        {
-            super(a,mt);
-        }
- 
-        protected ACLMessage prepareResponse(ACLMessage cfp) throws NotUnderstoodException, RefuseException {
-                System.out.println("Agent '"+getLocalName()+"' receives a CFP from Agent '"+cfp.getSender().getName()+"' to perform action '"+cfp.getContent() + "'");
-                // We provide a proposal
-                evaluation = evaluateAction();
-                System.out.println("Agent '"+getLocalName()+"' proposes  '"+ evaluation + "'");
-                ACLMessage propose = cfp.createReply();
-                propose.setPerformative(ACLMessage.PROPOSE);
-                propose.setContent(String.valueOf(evaluation));
-                return propose;
-            }
- 
-            protected ACLMessage prepareResultNotification(ACLMessage cfp, ACLMessage propose,ACLMessage accept) throws FailureException {
-                System.out.println("Agent '"+getLocalName()+"' accepts proposal and is about to perform an action");
-                if (performAction()) {
-                    System.out.println("Agent '"+getLocalName()+"' succesfully performs action");
-                    ACLMessage inform = accept.createReply();
-                    inform.setPerformative(ACLMessage.INFORM);
-                    return inform;
-                }
-                else {
-                    System.out.println("Agent '"+getLocalName()+"' failed to perform action");
-                    throw new FailureException("unexpected-error");
-                }
-            }
- 
-            protected void handleRejectProposal(ACLMessage reject)
-                        {
-                System.out.println("Agent '"+getLocalName()+"' rejects proposal");
-            }
-    }
+   
     
     protected void setup()
     {
@@ -398,16 +389,15 @@ public class AgenteIndustria extends Agent{
             MessageRecieverBehaviour mR = new MessageRecieverBehaviour();
             this.addBehaviour(mR); 
             
+            OfferRequestsServer oR = new OfferRequestsServer();
+            this.addBehaviour(oR);
+            
+            WasteOrdersServer wO = new WasteOrdersServer();
+            this.addBehaviour(wO);
+            
             IndustriaTickerBehaviour Ib = new IndustriaTickerBehaviour(this, secondsPerTick*1000);
             this.addBehaviour(Ib);
-            
-            System.out.println("Agent "+getLocalName()+" waiting for CFP...");
-            MessageTemplate template = MessageTemplate.and(
-                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
-                        MessageTemplate.MatchPerformative(ACLMessage.CFP) );
-            
-            cN = new ContractNetResponderBehaviour(this, template);
-            this.addBehaviour(cN);
+      
             
             DFService.register(this,dfd);
         } catch (FIPAException e) {
@@ -418,7 +408,7 @@ public class AgenteIndustria extends Agent{
 	}
 
 	private int evaluateAction() {
-            return lWaste;
+            return 2;
 	}
 
 	private boolean performAction() {

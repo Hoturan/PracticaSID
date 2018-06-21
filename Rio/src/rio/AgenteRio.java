@@ -88,6 +88,7 @@ public class AgenteRio extends Agent
                                     String replyMsg = msgManager.extraerAguaReply(indiceIndustria, litrosExtraidos);
                                     reply.setContent(replyMsg);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                                    reply.setConversationId("others");
                                     send(reply);
                                 }
                                 else {
@@ -96,6 +97,7 @@ public class AgenteRio extends Agent
                                     reply.setContent("No se ha podido extraer agua del rio");
                                     reply.addReceiver(sender);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
+                                    reply.setConversationId("others");
                                     send(reply);
                                 }
                             }
@@ -110,6 +112,7 @@ public class AgenteRio extends Agent
                                     String replyMsg = msgManager.descargarAguaReply(tramoDepuradora, litrosDescargados);
                                     reply.setContent(replyMsg);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                                    reply.setConversationId("others");
                                     send(reply);
                                 }
                                 else {
@@ -118,6 +121,7 @@ public class AgenteRio extends Agent
                                     reply.setContent("No se ha podido descargar agua al rio");
                                     reply.addReceiver(sender);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); /// no se si es necesario
+                                    reply.setConversationId("others");
                                     send(reply);
                                 }
                             }
