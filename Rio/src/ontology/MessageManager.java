@@ -56,4 +56,8 @@ public class MessageManager {
         return -1;
     }
     
+    public String finalRio(String[] words){
+        return "HAN LLEGADO " + words[0] + " LITROS DE AGUA " + words[1] + " AL MAR";
+    }
+    
 }

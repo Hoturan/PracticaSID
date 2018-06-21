@@ -18,11 +18,11 @@ public class Rio{
         for(int i = 0; i<flow.length; ++i){
             System.out.print(String.valueOf(flow[i].getVolumen()) + " >> ");
         }
-        System.out.println("MAR \n");
+        System.out.println("MAR");
     }
     
     // avanza todas las masas de agua del rio 1 posicion
-    public void avanzarCurso(){
+    public String avanzarCurso(){
             System.out.println("RIO AVANZA CURSO");
             // buscamos si hay un hueco
             int found = -1;
@@ -36,6 +36,10 @@ public class Rio{
                 }
             }
             
+           String msg = "";
+           msg += flow[flow.length-1].getVolumen();
+           if(flow[flow.length-1].aguaLimpia()) msg += " LIMPIA ";
+           else msg += " SUCIA ";
             
            for(int i = flow.length-1; i>0; --i){
                 MasaDeAgua mtemp = flow[i-1];
@@ -45,6 +49,8 @@ public class Rio{
             MasaDeAgua mNew = new MasaDeAgua();
             flow[0]= mNew; // al rio siempre le llega agua limpia*/
             muestraRio();
+            
+            return msg;
     }
 
 

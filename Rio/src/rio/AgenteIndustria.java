@@ -175,12 +175,10 @@ public class AgenteIndustria extends Agent{
         public void procesaAgua() {
 
                 
-
                 int litersPerProcess = industria.getLitersPerProcess();
                 
                 if (industria.getlWater() >= litersPerProcess && industria.getlWaste() <= (industria.getTankCapacity() - litersPerProcess)){
-                    industria.setlWater(industria.getlWater() - litersPerProcess);
-                    industria.setlWaste(industria.getlWaste() + litersPerProcess);
+                    industria.processWater();
                     industria.generateEarnings();
 
                     if(debug){
@@ -394,7 +392,8 @@ public class AgenteIndustria extends Agent{
 	}
 
 	private int evaluateAction() {
-            return lWaste;
+//            return lWaste;
+                return 0;
 	}
 
 	private boolean performAction() {

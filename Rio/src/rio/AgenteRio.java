@@ -50,7 +50,8 @@ public class AgenteRio extends Agent
         }
         
         public void onTick(){
-            rioBesos.avanzarCurso();
+            String waterToSea = rioBesos.avanzarCurso();
+            System.out.println(msgManager.finalRio(waterToSea.split("\\s+")) + "\n");
         }
     
     }

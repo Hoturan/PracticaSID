@@ -8,11 +8,14 @@ public class Industria{
     private int litersPerProcess;
     private int earningsPerProcess;
     private int earnings;
-    private int lWater;
-    private int lWaste;
+    private MasaDeAgua aguaLimpia, aguaSucia;
     
     public Industria(){
-        earnings = lWaste = lWater = 0;
+        earnings = 0;
+        aguaLimpia = new MasaDeAgua();
+        aguaSucia = new MasaDeAgua();
+        aguaLimpia.setVolumen(0);
+        aguaSucia.setVolumen(0);
     }
     
     public int getLitersPerProcess() {
@@ -56,23 +59,28 @@ public class Industria{
     }
 
     public int getlWater() {
-        return lWater;
+        return aguaLimpia.getVolumen();
     }
 
     public void setlWater(int lWater) {
-        this.lWater = lWater;
+        this.aguaLimpia.setVolumen(lWater);
     }
 
     public int getlWaste() {
-        return lWaste;
+        return aguaSucia.getVolumen();
     }
 
     public void setlWaste(int lWaste) {
-        this.lWaste = lWaste;
+        this.aguaSucia.setVolumen(lWaste);
     }
 
     public void generateEarnings(){
         this.earnings += earningsPerProcess;
     }
     
+    public void processWater(){
+        aguaLimpia.setVolumen(aguaLimpia.getVolumen() - litersPerProcess);
+        aguaSucia.setVolumen(aguaSucia.getVolumen() + litersPerProcess);
+        aguaSucia.contaminaAgua();
+    }
 }

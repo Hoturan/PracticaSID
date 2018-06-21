@@ -158,8 +158,7 @@ public class AgenteDepuradora extends Agent {
                 
             }
             else depuradora.setTicksLeft(depuradora.getTicksLeft() - 1);
-            
-            
+     
         }
         
         private void askForWaste(){
