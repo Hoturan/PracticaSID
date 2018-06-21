@@ -129,8 +129,10 @@ public class AgenteIndustria extends Agent{
                                 reply.addReceiver(AIDDepuradora);
 
 				int waste = industria.getlWaste();
+
                                 // The requested book is available for sale. Reply with the price
                                 reply.setContent(String.valueOf(waste) + " " + String.valueOf(industria.getGradoContaminacion()));
+                                reply.setContent(String.valueOf(waste));
                                 System.out.println("Offering " + waste + "L");
                                 reply.setConversationId("cfp");
 				myAgent.send(reply);
@@ -363,16 +365,17 @@ public class AgenteIndustria extends Agent{
     
    
     
+    @Override
     protected void setup()
     {
         this.setQueueSize(5);
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
         sd.setType("Industria"); 
-        sd.setName(getName());
-        dfd.setName(getAID());
+        sd.setName(this.getName());
+        dfd.setName(this.getAID());
         dfd.addServices(sd);
-        
+                
         try {     
             SearchDepuradoraAndRioOneShotBehaviour sD = new SearchDepuradoraAndRioOneShotBehaviour();
             this.addBehaviour(sD);        
@@ -391,11 +394,11 @@ public class AgenteIndustria extends Agent{
       
             
             DFService.register(this,dfd);
-        } catch (FIPAException e) {
-            myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Cannot register with DF", e);
-            doDelete();
-        } 
-
+            } catch (FIPAException e) {
+                myLogger.log(Logger.SEVERE, "Agent "+getLocalName()+" - Cannot register with DF", e);
+                doDelete();
+            } 
+        
 	}
 
 	private int evaluateAction() {
