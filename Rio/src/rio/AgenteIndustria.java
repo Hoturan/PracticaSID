@@ -211,19 +211,11 @@ public class AgenteIndustria extends Agent{
         
         public void procesaAgua() {
 
-                
-                int litersPerProcess = industria.getLitersPerProcess();
-                
-                if (industria.getlWater() >= litersPerProcess && industria.getlWaste() <= (industria.getTankCapacity() - litersPerProcess)){
-                    industria.processWater();
-                    industria.generateEarnings();
+            int litersPerProcess = industria.getLitersPerProcess();
 
-                    if(debug){
-                        System.out.println("Industria " + identificador + " Process Done: ");
-                        System.out.println("    Clean water Tank at: " + industria.getlWater() + "L");
-                        System.out.println("    Waste Tank at: " + industria.getlWaste() + "L");
-                        System.out.println("    Earnings at: " + industria.getEarnings() + " euros\n");
-                    }
+            if (industria.getlWater() >= litersPerProcess && industria.getlWaste() <= (industria.getTankCapacity() - litersPerProcess)){
+                industria.processWater();
+                industria.generateEarnings();
 
                 if(debug){
                     System.out.println("Industria " + myAgent.getAID().getLocalName() + " Process Done: ");
@@ -231,27 +223,26 @@ public class AgenteIndustria extends Agent{
                     System.out.println("    Waste Tank at: " + industria.getlWaste() + "L");
                     System.out.println("    Earnings at: " + industria.getEarnings() + " euros\n");
                 }
-                else if (industria.getlWaste() > (industria.getTankCapacity() - litersPerProcess)){
-                    System.out.println("Stopping production, no more capacity for Waste");
-                }
-                else if (industria.getlWater() <= (industria.getTankCapacity() - 1000000)){
-                    extractCleanWater();
-                }
+            }
+            else if (industria.getlWaste() > (industria.getTankCapacity() - litersPerProcess)){
+                System.out.println("Stopping production, no more capacity for Waste");
+            }
+            else if (industria.getlWater() <= (industria.getTankCapacity() - 1000000)){
+                extractCleanWater();
+            }
 
-                double wasteWaterLoad = (double) industria.getlWaste() / (double) industria.getTankCapacity();
+            double wasteWaterLoad = (double) industria.getlWaste() / (double) industria.getTankCapacity();
 
-                if (wasteWaterLoad > 0.75){
-                    if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
-                    ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
-                    request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                    String content = msgManager.enviaAgua(myAgent.getLocalName(), industria.getlWaste());
-                    request.setContent(content);
-                    request.addReceiver(AIDDepuradora);
-                    send(request);
-                }
+            if (wasteWaterLoad > 0.75){
+                if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
+                ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                String content = msgManager.enviaAgua(myAgent.getLocalName(), industria.getlWaste());
+                request.setContent(content);
+                request.addReceiver(AIDDepuradora);
+                send(request);
+            }
         }
-              
-    }
     }
     
     public class SearchDepuradoraAndRioOneShotBehaviour extends OneShotBehaviour
