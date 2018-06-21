@@ -23,6 +23,7 @@ public class AgenteRio extends Agent
     private Rio rioBesos;
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
     private MessageManager msgManager;
+    private int numberTramos = 10;
 
     private class RioTickerBehaviour extends TickerBehaviour {
         String message;
@@ -39,7 +40,14 @@ public class AgenteRio extends Agent
             this.message = "Agent " + myAgent +" with RioTickerBehaviour in action!!" + count_chocula;
             count_chocula = 0;
             System.out.println("--------------------- INICIAMOS RIO ----------------------");
-            rioBesos = new Rio(10); // rio de 10 tramos  POR PARAMETRO?
+            Object[] args = getArguments();
+            if (args != null && args.length == 1){
+                numberTramos = Integer.valueOf(args[0].toString());       
+
+            }
+            else System.out.println("No tramo amount specified for Rio, assuming 10");
+            
+            rioBesos = new Rio(numberTramos); // rio de 10 tramos  POR PARAMETRO?
             rioIniciado = true;
         }
  

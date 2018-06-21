@@ -54,7 +54,10 @@ public class AgenteIndustria extends Agent{
     private AID AIDrio;
     private AID AIDDepuradora;
     private ArrayList<AID> AIDsIndustrias = new ArrayList<AID>();
-           
+       
+    private int litersPerProcess = 250000;
+    private int posicion = 1;
+    private int tankCapacity = 1000000;
     
     private class MessageRecieverBehaviour extends SimpleBehaviour{
         private boolean finish = false;
@@ -172,11 +175,14 @@ public class AgenteIndustria extends Agent{
         public void onStart(){
             msgManager = new MessageManager();
             Object[] args = getArguments();
-            int tankCapacity = Integer.valueOf(args[0].toString());       
-            int posicion = Integer.valueOf(args[1].toString());             
-            int litersPerProcess = Integer.valueOf(args[2].toString());   
-            
-            System.out.println("Parametros de " + myAgent.getAID().getLocalName());
+            if (args != null && (args.length == 3)){
+                tankCapacity = Integer.valueOf(args[0].toString());       
+                posicion = Integer.valueOf(args[1].toString());             
+                litersPerProcess = Integer.valueOf(args[2].toString()); 
+                System.out.println("Parametros de " + myAgent.getAID().getLocalName());
+            }
+            else System.out.println("No parameters specified for " + myAgent.getLocalName() + " assuming");
+             
             System.out.println("    Capacidad del tanque ---> " + tankCapacity + "L");
             System.out.println("    Tramo de la Indunstria ---> " + posicion);
             System.out.println("    Litros usados por processo ---> " + litersPerProcess + "L");
