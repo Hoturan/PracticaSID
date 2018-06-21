@@ -35,7 +35,8 @@ public class AgenteIndustria extends Agent{
     private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
     private boolean debug = true;
- 
+    //-gui AgenteRio:rio.AgenteRio;AgenteIndustria:rio.AgenteIndustria(500000,4,100000);AgenteDepuradora:rio.AgenteDepuradora
+    //-gui AgenteRio:rio.AgenteRio;AgenteIndustria:rio.AgenteIndustria(1000000,4,250000);AgenteDepuradora:rio.AgenteDepuradora
     private int secondsPerTick = 5;
     private Industria industria;
     private MessageManager msgManager;
@@ -67,17 +68,17 @@ public class AgenteIndustria extends Agent{
                         case ACLMessage.INFORM:
                             String content = msg.getContent();
                             String[] words = content.split("\\s+");
-                            System.out.println("AgenteIndustria has received the following message: " + content);
+                            System.out.println(myAgent.getLocalName() + " has received the following message: " + content);
                             int litros = msgManager.getLitros(words);
-                            int indiceIndustria = msgManager.getIndice(words);
+
                             switch(msg.getSender().getLocalName()){
                                 case "AgenteRio":
                                     industria.setlWater(industria.getlWater() + litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWater() + " litros de agua");
+                                    System.out.println("Industria " + myAgent.getLocalName() + " tiene " + industria.getlWater() + " litros de agua");
                                     break;
                                 case "AgenteDepuradora":
                                     industria.setlWaste(industria.getlWaste() - litros);
-                                    System.out.println("Industria " + indiceIndustria + " tiene " + industria.getlWaste() + " litros de agua sucia");
+                                    System.out.println("Industria " + myAgent.getLocalName() + " tiene " + industria.getlWaste() + " litros de agua sucia");
                                     break;
                                 default:
                                     System.out.println("Oops, algo ha ido mal!");
@@ -86,7 +87,7 @@ public class AgenteIndustria extends Agent{
 
                                 break;
                             case ACLMessage.REJECT_PROPOSAL:
-                                System.out.println("AgenteIndustria no puede realizar la accion deseada");
+                                System.out.println(myAgent.getLocalName() + " no puede realizar la accion deseada");
                                 break;                            
                             default:
                                 System.out.println("INDUSTRIA MALFORMED MESSAGE");
@@ -356,7 +357,7 @@ public class AgenteIndustria extends Agent{
         this.setQueueSize(5);
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();   
-        sd.setType("AgenteIndustria"); 
+        sd.setType("Industria"); 
         sd.setName(getName());
         dfd.setName(getAID());
         dfd.addServices(sd);

@@ -84,7 +84,7 @@ public class AgenteRio extends Agent
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
                                     int tramoIndustria = msgManager.getTramo(words);
-                                    int indiceIndustria = msgManager.getIndice(words);
+                                    //int indiceIndustria = msgManager.getIndice(words);
                                     int litrosExtraidos = rioBesos.extraerAgua(tramoIndustria, 1000000);
                                     String replyMsg = msgManager.extraerAguaReply(sender.getLocalName(), litrosExtraidos);
                                     reply.setContent(replyMsg);

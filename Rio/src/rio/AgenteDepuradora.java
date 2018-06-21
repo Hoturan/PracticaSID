@@ -64,12 +64,12 @@ public class AgenteDepuradora extends Agent {
                                 System.out.println("AgenteDepuradora has received the following message: " + content);
                                 AID sender = msg.getSender();
                                 System.out.println("The message was sent by: " + sender.getLocalName());
-                                if(sender.getLocalName().equals("AgenteIndustria")){
+                                if(sender.getLocalName().contains("AgenteIndustria")){
                                     ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
                                     reply.addReceiver(sender);
                                     reply.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST); // no se si es necesario
                                     String send;
-                                    System.out.println("Depuradora is replying to AgenteIndustria");
+                                    System.out.println("Depuradora is replying to " + sender.getLocalName());
                                     int litrosRecibidos = msgManager.getLitros(words);
                                     //int indiceIndustria = msgManager.getIndice(words);
                                     if(depuradora.getTankCapacity() - (depuradora.getlWaste() + litrosRecibidos) > 0){
@@ -383,7 +383,7 @@ public class AgenteDepuradora extends Agent {
             boolean minARio = false;
             
             
-            AID[] aux = searchDF("AgenteIndustria");
+            AID[] aux = searchDF("Industria");
             if (aux != null){
                 for (int i = 0; i < aux.length; ++i){
                     if (debug){
