@@ -9,12 +9,13 @@ public class MasaDeAgua{
     private float totalNitratos;				// mg/l
     private float totalSulfatos;				// mg/l
     private int posicion;
+    private int gradoContaminacion;
 
     public MasaDeAgua(){
-            solidosEnSuspension = demandaQuimicaDeOxigeno = demandaBiologicaDeOxigeno = 
-                    totalSulfatos = totalNitratos = 0.0f;
-            volumen = 1000000;
-            posicion = 0;
+        solidosEnSuspension = demandaQuimicaDeOxigeno = demandaBiologicaDeOxigeno = 
+        totalSulfatos = totalNitratos = 0.0f;
+        volumen = 1000000;
+        posicion = gradoContaminacion = 0;
     }
     
     public int getVolumen() {
@@ -74,39 +75,52 @@ public class MasaDeAgua{
     }
 
     public void contaminaAgua(){
-            this.solidosEnSuspension += 50.0f;
-            this.demandaBiologicaDeOxigeno += 50.0f;
-            this.demandaQuimicaDeOxigeno += 50.0f;
-            this.totalNitratos += 50.0f;
-            this.totalSulfatos += 50.0f;
+        this.solidosEnSuspension += 50.0f;
+        this.demandaBiologicaDeOxigeno += 50.0f;
+        this.demandaQuimicaDeOxigeno += 50.0f;
+        this.totalNitratos += 50.0f;
+        this.totalSulfatos += 50.0f;
+        this.gradoContaminacion++; 
     }
 
     public void descontaminaAgua(){
-            this.solidosEnSuspension -= 50.0f;
-            this.demandaBiologicaDeOxigeno -= 50.0f;
-            this.demandaQuimicaDeOxigeno -= 50.0f;
-            this.totalNitratos -= 50.0f;
-            this.totalSulfatos -= 50.0f;
+        this.solidosEnSuspension -= 50.0f;
+        this.demandaBiologicaDeOxigeno -= 50.0f;
+        this.demandaQuimicaDeOxigeno -= 50.0f;
+        this.totalNitratos -= 50.0f;
+        this.totalSulfatos -= 50.0f;
+        this.gradoContaminacion--;
+        
     }
 
     public void mezclaMasasDeAgua(MasaDeAgua m){
-            this.volumen += m.volumen;
-            this.solidosEnSuspension += m.solidosEnSuspension;
-            this.demandaQuimicaDeOxigeno += m.demandaBiologicaDeOxigeno;
-            this.demandaQuimicaDeOxigeno += m.demandaQuimicaDeOxigeno;
-            this.totalNitratos += m.totalNitratos;
-            this.totalSulfatos += m.totalSulfatos;
+        this.volumen += m.volumen;
+        this.solidosEnSuspension += m.solidosEnSuspension;
+        this.demandaQuimicaDeOxigeno += m.demandaBiologicaDeOxigeno;
+        this.demandaQuimicaDeOxigeno += m.demandaQuimicaDeOxigeno;
+        this.totalNitratos += m.totalNitratos;
+        this.totalSulfatos += m.totalSulfatos;
+        this.gradoContaminacion += m.gradoContaminacion;
     }
 
     public boolean aguaLimpia(){
-            return (solidosEnSuspension == 0.0f && 
-                    demandaQuimicaDeOxigeno == 0.0f &&
-                    demandaBiologicaDeOxigeno == 0.0f &&
-                    totalNitratos == 0.0f &&
-                    totalSulfatos == 0.0f);
+        return gradoContaminacion == 0;
     }
 
     public void aumentarPosicion(){
-            posicion++;
-        }
+        posicion++;
+    }
+     
+    public void contaminaAgua(int gradoContaminacion){
+        this.solidosEnSuspension = 50.0f * gradoContaminacion;
+        this.demandaBiologicaDeOxigeno = 50.0f * gradoContaminacion;
+        this.demandaQuimicaDeOxigeno = 50.0f * gradoContaminacion;
+        this.totalNitratos = 50.0f * gradoContaminacion;
+        this.totalSulfatos = 50.0f * gradoContaminacion;
+        this.gradoContaminacion = gradoContaminacion;
+    }
+
+    int getGradoContaminacion() {
+        return this.gradoContaminacion;
+    }
 }

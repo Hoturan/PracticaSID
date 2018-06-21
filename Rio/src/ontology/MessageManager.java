@@ -20,12 +20,12 @@ public class MessageManager {
         return "SE HAN PODIDO DESCARGAR AL RIO: (tramo) " + tramo + " (litros) " + litros;
     }
     
-    public final String verterAgua(String id, int tramo, int litros){
-        return "INDUSTRIA VIERTE AGUA DIRECTAMENTE AL RIO: (AgenteIndustria) " + id + " (tramo) " + tramo + " (litros) " + litros;
+    public final String verterAgua(String id, int tramo, int litros, int gradoContaminacion){
+        return "INDUSTRIA VIERTE AGUA DIRECTAMENTE AL RIO: (AgenteIndustria) " + id + " (tramo) " + tramo + " (litros) " + litros + " (gradoContaminacion) " + gradoContaminacion;
     }
     
-    public final String enviaAgua(String id, int litros){
-        return "INDUSTRIA ENVIA AGUA A LA DEPURADORA: (AgenteIndustria) " + id + " (litros) " + litros;
+    public final String enviaAgua(String id, int litros, int gradoContaminacion){
+        return "INDUSTRIA ENVIA AGUA A LA DEPURADORA: (AgenteIndustria) " + id + " (litros) " + litros + " (gradoContaminacion) " + gradoContaminacion; 
     }
     
     public final String aguaAlmacenada(String id, int litros){
@@ -60,4 +60,11 @@ public class MessageManager {
         return "HAN LLEGADO " + words[0] + " LITROS DE AGUA " + words[1] + " AL MAR";
     }
     
+    public int getGradoContaminacion(String[] words){
+        for(int i = 0; i<words.length; ++i){
+            if(words[i].equals("(gradoContaminacion)"))
+                return Integer.parseInt(words[i+1]);
+        }
+        return -1;
+    }
 }

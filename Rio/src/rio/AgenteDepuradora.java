@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import ontology.Depuradora;
 import ontology.MessageManager;
+import ontology.MasaDeAgua;
 
 
 public class AgenteDepuradora extends Agent {
@@ -51,6 +52,7 @@ public class AgenteDepuradora extends Agent {
         private int step = 1;
         private AID bestOffer;
         private int mostWaste = 0;
+        private int mostGradoContaminacion = 0;
         private int replyNumber = 0;
         private int amountL = 0;
         @Override
@@ -71,16 +73,20 @@ public class AgenteDepuradora extends Agent {
                                     String send;
                                     System.out.println("Depuradora is replying to " + sender.getLocalName());
                                     int litrosRecibidos = msgManager.getLitros(words);
-                                    //int indiceIndustria = msgManager.getIndice(words);
-                                    if(depuradora.getTankCapacity() - (depuradora.getlWaste() + litrosRecibidos) > 0){
+                                    int gradoContaminacion = msgManager.getGradoContaminacion(words);
+                                    MasaDeAgua mtemp = new MasaDeAgua();
+                                    mtemp.contaminaAgua(gradoContaminacion);
+                                    if(depuradora.getTankCapacity() - (depuradora.getWaterAmount() + litrosRecibidos) > 0){
                                         // si la depuradora puede almacenar toda el agua recibida:
-                                        depuradora.setlWaste(depuradora.getlWaste() + litrosRecibidos);
+                                        mtemp.setVolumen(litrosRecibidos);
+                                        if(litrosRecibidos > 0)depuradora.addFilthyWater(mtemp);
                                         send = msgManager.aguaAlmacenada(sender.getLocalName(), litrosRecibidos);
                                     }
                                     else{
-                                        int volumeLeft = depuradora.getTankCapacity() - depuradora.getlWaste();
+                                        int volumeLeft = depuradora.getTankCapacity() - depuradora.getWaterAmount();
+                                        mtemp.setVolumen(volumeLeft);
                                         send = msgManager.aguaAlmacenada(sender.getLocalName(), volumeLeft);
-                                        depuradora.setlWaste(depuradora.getlWaste() + volumeLeft);
+                                        if(volumeLeft > 0) depuradora.addFilthyWater(mtemp);
                                     }
                                     reply.setConversationId("others");
                                     reply.setContent(send);
@@ -92,25 +98,36 @@ public class AgenteDepuradora extends Agent {
                                 // Purchase successful. We can terminate
                                 System.out.println("lWaste successfully accuired from agent "+msg.getSender().getName());
                                 System.out.println("Liters = "+ mostWaste);
-                                depuradora.setlWaste(depuradora.getlWaste()+amountL);
+                                
+                                MasaDeAgua mtemp = new MasaDeAgua();
+                                mtemp.setVolumen(amountL);
+                                mtemp.contaminaAgua(mostGradoContaminacion);
+                                
+                                if(amountL > 0) depuradora.addFilthyWater(mtemp);
                             }
                             else{
                                 content = msg.getContent();
                                 String[] word = content.split("\\s+");
                                 System.out.println("AgenteDepuradora has received the following message: " + content);
                                 int litrosDescargados = msgManager.getLitros(word);
-                                depuradora.setlWater(depuradora.getlWater() - litrosDescargados);        
+                                depuradora.descargaAgua(litrosDescargados);     
                             }
                             break;
                         case ACLMessage.REJECT_PROPOSAL:
                             System.out.println("Depuradora no puede descargar agua al rio");
                             break;
                         case ACLMessage.PROPOSE:
-                            int waste = Integer.parseInt(msg.getContent());
+                            String msgContent  = msg.getContent();
+                            String[] words2 = msgContent.split("\\s+");
+                            
+                            int waste = Integer.parseInt(words2[0]);
+                            int gradoContaminacion = Integer.parseInt(words2[1]);
+                            
                             System.out.println("Propose " + waste+ "L recieved from " + msg.getSender().getLocalName());
                             if (bestOffer == null || waste < mostWaste) {
                                 // This is the best offer at present
                                 mostWaste = waste;
+                                mostGradoContaminacion = gradoContaminacion;
                                 bestOffer = msg.getSender();
                             }
                             replyNumber++;
@@ -121,7 +138,7 @@ public class AgenteDepuradora extends Agent {
                             if (step == 2){
                                 ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
                                 order.addReceiver(bestOffer);
-                                amountL = (depuradora.getTankCapacity() - depuradora.getlWaste() + mostWaste);
+                                amountL = (depuradora.getTankCapacity() - depuradora.getWaterAmount() + mostWaste);
                                 if (amountL < 0) amountL = mostWaste - amountL;
                                 else amountL = mostWaste;
                                 if (debug) System.out.println("Can handle " + amountL + "L");
@@ -132,7 +149,12 @@ public class AgenteDepuradora extends Agent {
                                 // Prepare the template to get the purchase order reply
                                 mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cfp"),
                                             MessageTemplate.MatchInReplyTo(order.getReplyWith()));
-                                depuradora.setlWaste(mostWaste);
+                                
+                                MasaDeAgua mtemp = new MasaDeAgua();
+                                mtemp.setVolumen(amountL);
+                                mtemp.contaminaAgua(mostGradoContaminacion);
+                                
+                                if(amountL > 0) depuradora.addFilthyWater(mtemp);
                                 step = 1;
                             }
                             break;
@@ -145,106 +167,32 @@ public class AgenteDepuradora extends Agent {
                 else block();                  
             }
                    
-                @Override
-                public boolean done() {
-                    return finished;
-                }
-
-                
+            @Override
+            public boolean done() {
+                return finished;
+            }
+        
     }
-    
-    private class RequestPerformer extends Behaviour {
-		private int step = 1;
-                private AID bestOffer;
-                private int mostWaste = 0;
-                private int replyNumber = 0;
-                
-
-                @Override
-		public void action() {
-			switch (step) {
-                            case 1:
-                                MessageTemplate mess = MessageTemplate.MatchConversationId("cfp");
-                                ACLMessage msg = myAgent.receive(mess);
-                                if (msg != null) {
-                                        System.out.println("GOT A MESSAGE!");
-                                        if (msg.getPerformative() == ACLMessage.PROPOSE){
-                                            // This is an offer 
-                                            int waste = Integer.parseInt(msg.getContent());
-                                            System.out.print("Propose " + waste+ "L recieved from " + msg.getSender().getLocalName());
-;                                           if (bestOffer == null || waste < mostWaste) {
-                                                // This is the best offer at present
-                                                mostWaste = waste;
-                                                bestOffer = msg.getSender();
-                                            }
-                                        }
-                                        replyNumber++;
-                                        if (replyNumber >= AIDsIndustrias.size()) {
-                                        // We received all replies
-                                        step = 2; 
-                                        }      
-                                }
-                                else block();
-                                break;
-
-                            case 2:
-                                ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-                                order.addReceiver(bestOffer);
-                                order.setContent("SYMBOLIC");
-                                order.setConversationId("cfp");
-                                order.setReplyWith("order"+System.currentTimeMillis());
-                                myAgent.send(order);
-                                // Prepare the template to get the purchase order reply
-                                mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cfp"),
-                                            MessageTemplate.MatchInReplyTo(order.getReplyWith()));
-                                depuradora.setlWaste(mostWaste);
-                                step = 3;
-                                break;
-                            case 3:                             
-                                msg = myAgent.receive(mt);
-                                if (msg.getPerformative() == ACLMessage.INFORM) {
-                                        // Purchase successful. We can terminate
-                                        System.out.println("lWaste successfully accuired from agent "+msg.getSender().getName());
-                                        System.out.println("Liters = "+ mostWaste);
-
-                                }
-                                else {
-                                        System.out.println("Attempt failed");
-                                }
-
-                                step = 1;
-                            }
-                        }        
-
-                @Override
-		public boolean done() {
-			if (step == 2 && bestOffer == null) {
-				System.out.println("Attempt failed: No waste avaliable");
-			}
-			return ((step == 2 && bestOffer == null) || step == 4);
-		}
-	}  // End of inner class RequestPerformer
-      
+       
     private class DepuradoraTickerBehaviour extends TickerBehaviour    {
         String message;
         int count_chocula;
 
         boolean pouringWater = false;
         boolean pourSuccessful = false;
-       
-                        
+                     
         public DepuradoraTickerBehaviour(Agent a, long period) {
             super(a, period);
         }
 
- 
-        public void onStart()
+         public void onStart()
         {
             msgManager = new MessageManager();
             depuradora = new Depuradora();
             depuradora.setPosition(6);              ////  { POR PARAMETROS }
             depuradora.setTicksPerProcess(5);       ////  { POR PARAMETROS }
-            depuradora.setTankCapacity(1000000);    ////  { POR PARAMETROS }
+            //depuradora.setTankCapacity(1000000);    ////  { POR PARAMETROS }
+            depuradora.setTankCapacity(0);
             
             this.message = "Agent " + myAgent +" with DepuradoraTickerBehaviour in action!!" + count_chocula;
             count_chocula = 0;
@@ -267,45 +215,47 @@ public class AgenteDepuradora extends Agent {
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
             request.addReceiver(AIDrio);
             request.setConversationId("others");
-            String content = msgManager.descargarAgua(depuradora.getPosition(), depuradora.getlWater());
+            String content = msgManager.descargarAgua(depuradora.getPosition(), depuradora.getWaterAmount());
             request.setContent(content);
             send(request);
-            
             pourSuccessful = true;
         }
         
         private void depurarAgua(){
-            if (depuradora.getTicksLeft() == 0){
-                if (depuradora.getlWaste() == 0){
+            
+            if(depuradora.aguaDepurada()){
+                
+                if (depuradora.getWaterAmount() == 0){
                     System.out.println("Depuradora has no waste to clean!!!");
                     if (!askedOnce){
                         askedOnce = true;
                         askForWaste();
                     }
                 }
-                else if (depuradora.getlWaste() > 0){   
-                    depuradora.setlWater(depuradora.getlWaste());
-                    depuradora.setlWaste(0);
-                    ///// DESCARGAR EL AGUA LIMPIA AL RIO
-                    pourCleanWater(); 
+                else{
+                    pourCleanWater();
                     askedOnce = false;
                     if (debug){
                         System.out.println("Depuradora Process Done");    
-                        System.out.println("    Waste Tank at: " + depuradora.getlWaste() + "\n");
+                        System.out.println("    Waste Tank at: " + depuradora.getWaterAmount() + "\n");
                     }
                 }
-
-                if (pourSuccessful){  
+                 if (pourSuccessful){  
                     askedOnce = false;
                     pourSuccessful = false;
                     depuradora.restartTicksLeft();
                 
-                    double percentage = (double) depuradora.getlWaste() / (double) depuradora.getTankCapacity();
+                    double percentage = (double) depuradora.getWaterAmount() / (double) depuradora.getTankCapacity();
                     if (percentage  <= 50.0) askForWaste();
                 }
-                
             }
-            else depuradora.setTicksLeft(depuradora.getTicksLeft() - 1);
+            else {
+                String cleaningProcess = "DEPURADORA LIMPIA EL AGUA: gradoContaminacion: " + depuradora.getGradoContaminacion() + " -> ";
+                depuradora.limpiaAgua();
+                //if(!depuradora.aguaDepurada()) depuradora.limpiaAgua(); /// para limpiar el doble de rapido
+                cleaningProcess += depuradora.getGradoContaminacion();
+                System.out.println(cleaningProcess);
+            }
      
         }
         

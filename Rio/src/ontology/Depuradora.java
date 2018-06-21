@@ -5,12 +5,12 @@ public class Depuradora{
     private int ticksPerProcess;
     private int position;
     private int tankCapacity;
-    private int lWater;
-    private int lWaste;
     private int ticksLeft;
+    private MasaDeAgua aguaDepuradora;
     
     public Depuradora(){
-        lWater = lWaste = 0;
+        aguaDepuradora = new MasaDeAgua();
+        aguaDepuradora.setVolumen(0);
     }
 
     public int getTicksPerProcess() {
@@ -37,23 +37,9 @@ public class Depuradora{
     public void setTankCapacity(int tankCapacity) {
         this.tankCapacity = tankCapacity;
     }
-    
-    
-   
-    public int getlWater() {
-        return lWater;
-    }
-
-    public void setlWater(int lWater) {
-        this.lWater = lWater;
-    }
-
-    public int getlWaste() {
-        return lWaste;
-    }
-
-    public void setlWaste(int lWaste) {
-        this.lWaste = lWaste;
+  
+    public int getWaterAmount(){
+        return aguaDepuradora.getVolumen();
     }
 
     public int getTicksLeft() {
@@ -66,5 +52,29 @@ public class Depuradora{
     
     public void restartTicksLeft(){
         ticksLeft = ticksPerProcess;
+    }
+    
+    public void addFilthyWater(MasaDeAgua newWater){
+        aguaDepuradora.mezclaMasasDeAgua(newWater);
+    }
+    
+    public void descargaAgua(int liters){
+        if(liters == aguaDepuradora.getVolumen()){
+            aguaDepuradora = new MasaDeAgua();
+            aguaDepuradora.setVolumen(0);
+        }
+        else aguaDepuradora.setVolumen(aguaDepuradora.getVolumen() - liters);
+    }
+    
+    public boolean aguaDepurada(){
+        return aguaDepuradora.aguaLimpia();
+    }
+    
+    public void limpiaAgua(){
+        aguaDepuradora.descontaminaAgua();
+    }
+    
+    public int getGradoContaminacion(){
+        return aguaDepuradora.getGradoContaminacion();
     }
 }

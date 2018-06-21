@@ -127,6 +127,21 @@ public class AgenteRio extends Agent
                                 }
                             }
                             break;
+                        
+                        case ACLMessage.INFORM:
+                            String content2 = msg.getContent();
+                            String[] words2 = content2.split("\\s+");
+                            System.out.println("AgenteRio has received the following message: " + content2);
+                            AID sender2 = msg.getSender();
+                            System.out.println("The message was sent by: " + sender2.getLocalName());
+                            if(sender2.getLocalName().equals("AgenteIndustria")){
+                                int tramo = msgManager.getTramo(words2);
+                                int litrosDescargados = msgManager.getLitros(words2);
+                                int gradoContaminacion = msgManager.getGradoContaminacion(words2);
+                                rioBesos.verterAgua(tramo,litrosDescargados,gradoContaminacion);
+                            }
+                            break;
+                           
                         default:
                             System.out.println("MALFORMED MESSAGE");
                             break;

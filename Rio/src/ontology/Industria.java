@@ -83,4 +83,20 @@ public class Industria{
         aguaSucia.setVolumen(aguaSucia.getVolumen() + litersPerProcess);
         aguaSucia.contaminaAgua();
     }
+    
+    public int getGradoContaminacion(){
+        return aguaSucia.getGradoContaminacion();
+    }
+    
+    public void addCleanWater(int litros){
+        aguaLimpia.setVolumen(aguaLimpia.getVolumen() + litros);
+    }
+    
+    public int reduceFilthyWater(int litrosEnviados){
+        int litersLeft = aguaSucia.getVolumen() - litrosEnviados;
+        aguaSucia = new MasaDeAgua();
+        aguaSucia.setVolumen(0);
+        return litersLeft;
+
+    }
 }

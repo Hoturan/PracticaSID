@@ -81,4 +81,11 @@ public class Rio{
             mtemp.setVolumen(mtemp.getVolumen() + litrosDescarga);
             flow[index] = mtemp;
     }
+    
+    public void verterAgua(int tramo, int litros, int gradoContaminacion){
+        MasaDeAgua aguaVertida = new MasaDeAgua();
+        aguaVertida.setVolumen(litros);
+        aguaVertida.contaminaAgua(gradoContaminacion);
+        flow[tramo].mezclaMasasDeAgua(aguaVertida);
+    }
 }

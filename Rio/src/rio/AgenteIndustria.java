@@ -73,12 +73,23 @@ public class AgenteIndustria extends Agent{
 
                             switch(msg.getSender().getLocalName()){
                                 case "AgenteRio":
-                                    industria.setlWater(industria.getlWater() + litros);
+                                    industria.addCleanWater(litros);
                                     System.out.println("Industria " + myAgent.getLocalName() + " tiene " + industria.getlWater() + " litros de agua");
                                     break;
                                 case "AgenteDepuradora":
-                                    industria.setlWaste(industria.getlWaste() - litros);
-                                    System.out.println("Industria " + myAgent.getLocalName() + " tiene " + industria.getlWaste() + " litros de agua sucia");
+                                    int gradoContaminacion = industria.getGradoContaminacion();
+                                    int litersLeft = industria.reduceFilthyWater(litros);
+                                    if(litersLeft > 0){
+                                        System.out.println("A la industria " + myAgent.getLocalName() + " aun le quedan " + litersLeft + " por expulsar, se ve obligada e verterlos al rio");
+                                        String msgToRio = msgManager.verterAgua(myAgent.getLocalName(), industria.getPosition(), litersLeft, gradoContaminacion);
+                                        ACLMessage msgToRiver = new ACLMessage(ACLMessage.INFORM);
+                                        msgToRiver.addReceiver(AIDrio);
+                                        msgToRiver.setContent(msgToRio);
+                                        send(msgToRiver);
+                                    }
+                                    else{
+                                        System.out.println("Industria " + myAgent.getLocalName() + " ha podido enviar a la depuradora el agua sucia");
+                                    }  
                                     break;
                                 default:
                                     System.out.println("Oops, algo ha ido mal!");
@@ -110,7 +121,7 @@ public class AgenteIndustria extends Agent{
 		public void action() { 
 			MessageTemplate mt = MessageTemplate.MatchConversationId("cfp");   
 			ACLMessage msg = myAgent.receive(mt);
-			if (msg != null && ACLMessage.CFP == msg.getPerformative()) {
+			if (msg != null && ACLMessage.CFP == msg.getPerformative() && industria != null) {
 				// CFP Message received. Process it
                                 System.out.println(myAgent.getAID().getLocalName() + " has recieved a petiton for waste");
 				String title = msg.getContent();
@@ -119,7 +130,7 @@ public class AgenteIndustria extends Agent{
 
 				int waste = industria.getlWaste();
                                 // The requested book is available for sale. Reply with the price
-                                reply.setContent(String.valueOf(waste));
+                                reply.setContent(String.valueOf(waste) + " " + String.valueOf(industria.getGradoContaminacion()));
                                 System.out.println("Offering " + waste + "L");
                                 reply.setConversationId("cfp");
 				myAgent.send(reply);
@@ -135,18 +146,18 @@ public class AgenteIndustria extends Agent{
 			MessageTemplate mt = MessageTemplate.MatchConversationId("cfp");
 			ACLMessage msg = myAgent.receive(mt);
 			if (msg != null && ACLMessage.ACCEPT_PROPOSAL == msg.getPerformative()) {
-				// ACCEPT_PROPOSAL Message received. Process it
-				String title = msg.getContent();
-				ACLMessage reply = msg.createReply();
+                            // ACCEPT_PROPOSAL Message received. Process it
+                            String title = msg.getContent();
+                            ACLMessage reply = msg.createReply();
 
-				industria.setlWaste(0);
-                                reply.setPerformative(ACLMessage.INFORM);
-                                System.out.println(title+" given to agent "+msg.getSender().getName());
-                                reply.setConversationId("cfp");
-				myAgent.send(reply);
+                            industria.setlWaste(0);
+                            reply.setPerformative(ACLMessage.INFORM);
+                            System.out.println(title+" given to agent "+msg.getSender().getName());
+                            reply.setConversationId("cfp");
+                            myAgent.send(reply);
 			}
 			else {
-				block();
+                            block();
 			}
 		}
         }
@@ -238,7 +249,7 @@ public class AgenteIndustria extends Agent{
                 if (debug) System.out.println("Waste Tank at more than 75% capacity, proceding to search for Depuradora");                 
                 ACLMessage  request  =  new  ACLMessage(ACLMessage.REQUEST); 
                 request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                String content = msgManager.enviaAgua(myAgent.getLocalName(), industria.getlWaste());
+                String content = msgManager.enviaAgua(myAgent.getLocalName(), industria.getlWaste(), industria.getGradoContaminacion());
                 request.setContent(content);
                 request.addReceiver(AIDDepuradora);
                 send(request);
